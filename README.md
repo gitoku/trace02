@@ -1,8 +1,8 @@
 # PinsEntry
 
-|No|device name|pin Name|(arduino style name)|
+|No|device name|pin Name|arduino style name|
 |+--|+--|+--|+--|
-|1 | reset||rst|
+|1 | reset| |rst|
 |2 | RxD|PD0| d0|
 |3 | TxD|PD1| d1|
 |4 | RotoryEnc0|PD2| d2|
