@@ -1,4 +1,4 @@
-
+//マーカー読み込み->状態決定
 char marker_read(void)
 {
   static boolean sw_r = false;
@@ -39,6 +39,7 @@ char marker_read(void)
   return marker;
 }
 
+//マーカ判断後の動作定義
 char pos_state(void)
 {
   const char patturn[10] = 
