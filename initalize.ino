@@ -1,10 +1,11 @@
-#include <MsTimer2.h>
+//#include <MsTimer2.h>
 
  int sens_val[5];
  int sens_ent_diff[5];
  int sens_ent_line[5] = {0, 0, 0, 0, 0};
  int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
+//ピンの初期化
 void init_pins()
 {
   pinMode(2, INPUT);
@@ -31,6 +32,9 @@ void init_pins()
   //MsTimer2::start();
 }
 
+//[目的]
+//.5周期でスイッチがちかちかして
+//いつ押しても反応する
 void blink_swich()
 {
   boolean output = HIGH;
@@ -53,6 +57,11 @@ void blink_swich()
   while(digitalRead(12) == HIGH);
 }
 
+
+//センサー初期化
+//キャリブレーション
+  //白上でボタン押す
+  //黒上でボタン押す
 void init_sensor()
 {
   blink_swich();
