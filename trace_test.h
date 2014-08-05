@@ -10,7 +10,6 @@
 void init_pins();
 void blink_swich();
 void init_sensor();
-void delay(unsigned int t_delay);
 
 void sensor_read();
 int dig_sens_read();
