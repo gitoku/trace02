@@ -23,8 +23,8 @@ char maker_read(void);
 void fnrot_R();
 void fnrot_L();
 void measureSpeed();
-void m_controle();
+void m_control();
 void m_stop();
-void pw_controle(int pw_r, int pw_l);
+void pw_control(int pw_r, int pw_l);
 
 #endif

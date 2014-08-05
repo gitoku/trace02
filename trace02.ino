@@ -79,13 +79,13 @@ void loop()
   {
     if(Cv[0] > 0)
     {
-     // pw_controle(100, 100-(int)Cv[0]);
+     // pw_control(100, 100-(int)Cv[0]);
      analogWrite(5, speed_default);
      analogWrite(6, speed_default - Cv[0]);
     }
     else
     {
-      //pw_controle(100+(int)Cv[0], 100);
+      //pw_control(100+(int)Cv[0], 100);
      analogWrite(5, speed_default - Cv[0]);
      analogWrite(6, speed_default);
     }

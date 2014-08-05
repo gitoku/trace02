@@ -32,6 +32,8 @@ void inc_pos_L(long *encoder_L)
   encoder_L++;
 }
 */
+
+//読み取りの漏れ防止のためのbuffer
 void measureSpeed() 
 {
    temp_0 = encoder_R;
@@ -44,7 +46,8 @@ void measureSpeed()
    uEnc_Buff_L = temp_1;
 }
 
-void m_controle()
+
+void m_control()
 {
   R_out += KpR * (Mspeed - iEnc_R);
   L_out += KpL * (Mspeed - iEnc_L);
@@ -64,7 +67,7 @@ void m_stop()
   
 }
 
-void pw_controle(int pw_r, int pw_l)
+void pw_control(int pw_r, int pw_l)
 {
   pw_r = constrain(pw_r, 0, 100);
   pw_r = constrain(pw_r, 0, 100);
