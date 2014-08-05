@@ -5,7 +5,7 @@
 #define Kp 1.0
 #define Td 0.05
 #define Ti 1.0
-#define dt 0.005
+#define Dt 0.005
 
 unsigned long s_time, e_time;
 unsigned int lost_count = 0;
@@ -53,8 +53,8 @@ void loop()
   e[0] = dig_sens_pos(&status);
  
   dCv += Kp * (e[0] - e[1]); //P_out
-//  dCv += Kp * (dt/Ti) * e[0]; //I_out
-  dCv += Kp * (Td/dt) * (e[0] + e[2] - 2*e[1]); //D_out
+//  dCv += Kp * (Dt/Ti) * e[0]; //I_out
+  dCv += Kp * (Td/Dt) * (e[0] + e[2] - 2*e[1]); //D_out
   
   
   Cv[1] = Cv[0];
@@ -96,7 +96,7 @@ void loop()
   Serial.println(lost_count);
 
   e_time = micros();
-  int t_delay = max(0, dt *1000000 +s_time -e_time);
+  int t_delay = max(0, Dt *1000000 +s_time -e_time);
   delayMicroseconds(t_delay);
 }
 
