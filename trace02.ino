@@ -1,4 +1,6 @@
 #include "trace_test.h"
+#include "motor.h"
+
 #define line_center 15.0
 #define lost_line_time 200
 #define speed_default 30 //30, 1.1 //40, 1.1 s=0.6
@@ -14,8 +16,8 @@ unsigned int encoder_L = 0;
 float e[3];
 float Cv[2] = {0.0, 0.0};
 
-Motor motorR;
-Motor motorL;
+Motor motorR(MOTOR_L_PWM_PIN);
+Motor motorL(MOTOR_R_PWM_PIN);
 
 void setup()
 {
@@ -87,14 +89,14 @@ void loop()
   {
     if(Cv[0] > 0)
     {
-     motorL.out(speed_default - (int)Cv[0]);
-     motorR.out(speed_default);
+     motorL.pwmOut(speed_default - (int)Cv[0]);
+     motorR.pwmOut(speed_default);
     }
     else
     {
 
-     motorL.out(speed_default);
-     motorR.out(speed_default - (int)Cv[0]);
+     motorL.pwmOut(speed_default);
+     motorR.pwmOut(speed_default - (int)Cv[0]);
     }
   }
  
