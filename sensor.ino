@@ -8,14 +8,14 @@ void sensor_read()
 {
   
   PORTB &= ~_BV(2);//digitalWrite(10, LOW);
-  delays(500);
+  delay(500);
   for(int i=0; i<5; i++)
   {
     sens_val[i] = analogRead(i);
   }
   
   PORTB |= _BV(2);//digitalWrite(10, HIGH);
-  delays(500); 
+  delay(500); 
   for(int i=0; i<5; i++)
   {
     sens_val[i] -= analogRead(i);

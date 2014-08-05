@@ -38,7 +38,7 @@ void blink_swich()
   for(;;)
   {
     digitalWrite(13, output);
-    delays(1000);
+    delay(1000);
     count ++;
     if(count > 500)
     {
@@ -96,11 +96,5 @@ void init_sensor()
   }
   blink_swich();
   digitalWrite(13, LOW);
-}
-
-void delays(unsigned int t_delay)
-{
-  unsigned long t_count = micros();
-  while((micros() - t_count) < t_delay);
 }
 
