@@ -1,6 +1,6 @@
 # PinsEntry
 
-|No|device name|pin Name|(arduino style name)
+|No|device name|pin Name|(arduino style name)|
 |+--|+--|+--|+--|
 |1 | reset||rst|
 |2 | RxD|PD0| d0|
