@@ -14,6 +14,9 @@ unsigned int encoder_L = 0;
 float e[3];
 float Cv[2] = {0.0, 0.0};
 
+Motor motorR;
+Motor motorL;
+
 void setup()
 {
   PORTD = PORTD & 0b00001111;
@@ -28,6 +31,11 @@ void setup()
   blink_swich();
   digitalWrite(13, LOW);
 //  init_sensor();
+
+  //モータpwm dutyの上限設定
+  motorR.limitSet(30);
+  motorL.limitSet(30);
+
   
 }
 
@@ -79,15 +87,14 @@ void loop()
   {
     if(Cv[0] > 0)
     {
-     // pw_control(100, 100-(int)Cv[0]);
-     analogWrite(5, speed_default);
-     analogWrite(6, speed_default - Cv[0]);
+     motorL.out(speed_default - (int)Cv[0]);
+     motorR.out(speed_default);
     }
     else
     {
-      //pw_control(100+(int)Cv[0], 100);
-     analogWrite(5, speed_default - Cv[0]);
-     analogWrite(6, speed_default);
+
+     motorL.out(speed_default);
+     motorR.out(speed_default - (int)Cv[0]);
     }
   }
  

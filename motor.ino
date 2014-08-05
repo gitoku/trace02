@@ -67,12 +67,3 @@ void m_stop()
   
 }
 
-void pw_control(int pw_r, int pw_l)
-{
-  pw_r = constrain(pw_r, 0, 100);
-  pw_r = constrain(pw_r, 0, 100);
-  int r_out = 0.01 * pw_r * default_pw;
-  int l_out = 0.01 * pw_l * default_pw;  
-  analogWrite(5, r_out);
-  analogWrite(6, l_out);
-}
