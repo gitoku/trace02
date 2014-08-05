@@ -1,42 +1,42 @@
 
-char maker_read(void)
+char marker_read(void)
 {
   static boolean sw_r = false;
   static boolean sw_l = false;
   static byte flag = 0b000;
-  static char maker = 0;
-  static char last_maker = 0;
-  int maker_sens_R = dig_sens_read() & 0b0001;
-  int maker_sens_L = dig_sens_read() & 0b1000;
-  int maker_sens_D = dig_sens_read() & 0b1001;
+  static char marker = 0;
+  static char last_marker = 0;
+  int marker_sens_R = dig_sens_read() & 0b0001;
+  int marker_sens_L = dig_sens_read() & 0b1000;
+  int marker_sens_D = dig_sens_read() & 0b1001;
   
-  if((maker_sens_R == 0b0001)&&(sw_r == false))
+  if((marker_sens_R == 0b0001)&&(sw_r == false))
   {
     flag += 0b01;
     sw_r = true;
   }
   
-  if((maker_sens_L == 0b1000)&&(sw_l == false))
+  if((marker_sens_L == 0b1000)&&(sw_l == false))
   {
     flag += 0b10;
     sw_l = true;
   }
   
-  if(maker_sens_D == 0b0000)
+  if(marker_sens_D == 0b0000)
   {
     switch(flag)
     {
-      case 0b01: maker = 'r'; break;
-      case 0b10: maker = 'l'; break;
-      case 0b11: maker = 'd'; break;
-      default: maker = last_maker; 
+      case 0b01: marker = 'r'; break;
+      case 0b10: marker = 'l'; break;
+      case 0b11: marker = 'd'; break;
+      default: marker = last_marker; 
     }
     sw_r = false;
     sw_l = false;
     flag = 0;
   } 
-  last_maker = maker;
-  return maker;
+  last_marker = marker;
+  return marker;
 }
 
 char pos_state(void)
