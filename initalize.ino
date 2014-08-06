@@ -5,14 +5,13 @@
  int sens_ent_line[5] = {0, 0, 0, 0, 0};
  int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
+
 //ピンの初期化
 void init_pins()
 {
   pinMode(2, INPUT);
   pinMode(3, INPUT);
   pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
   pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
   pinMode(10, OUTPUT);
@@ -30,6 +29,14 @@ void init_pins()
   
   //MsTimer2::set(10, measureSpeed); // 10ms period
   //MsTimer2::start();
+}
+
+void inc_pos_L(){
+
+}
+
+void inc_pos_R(){
+
 }
 
 //[目的]

@@ -50,19 +50,10 @@ void setup()
   
 }
 
-void inc_pos_R()
-{
-  encoder_R++;
-}
-
-void inc_pos_L()
-{
-  encoder_L++;
-}
 
 void loop()
 { 
-  dt = getDt(); //get run period(usec)
+  int dt = getdt_usec(); //get run period(usec)
 
   s_time = micros();
 //  t_count_1 = s_time;
@@ -74,7 +65,7 @@ void loop()
   e[0] = dig_sens_pos(&status);
  
   dCv += Kp * (e[0] - e[1]); //P_out
-//  dCv += Kp * (Dt/Ti) * e[0]; //I_out
+//  dCv += Kp * (dt/Ti) * e[0]; //I_out
   dCv += Kp * (Td/dt) * (e[0] + e[2] - 2*e[1]); //D_out
   
   
@@ -117,7 +108,7 @@ void loop()
   Serial.println(lost_count);
 
   e_time = micros();
-  int t_delay = max(0, Dt *1000000 +s_time -e_time);
+  int t_delay = max(0, dt *1000000 +s_time -e_time);
   delayMicroseconds(t_delay);
 }
 
