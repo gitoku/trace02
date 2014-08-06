@@ -16,8 +16,9 @@ unsigned int encoder_L = 0;
 float e[3];
 float Cv[2] = {0.0, 0.0};
 
-Motor motorR(MOTOR_L_PWM_PIN,30);
 Motor motorL(MOTOR_R_PWM_PIN,30);
+Motor motorR(MOTOR_L_PWM_PIN,30);
+
 
 void setup()
 {

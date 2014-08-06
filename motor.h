@@ -16,12 +16,13 @@ class Motor
 		int pwmLimit(int _pwm_duty);
 	public:
 		Motor(int _pin);
+		Motor(int _pin, int _pwm_duty_limit);
 		void setPin(int _pin);
 		void setLimit(int _limit);
 		void setDuty(int _pwm_duty);
 		void write();
 		void write(int _pwm_duty);
-		void write(float duty);
+		void write(float float_duty);
 		void stop();
 };
 
