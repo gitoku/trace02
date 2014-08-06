@@ -1,6 +1,6 @@
 unsigned long t_count = 0;
 
-unsigned int dig_sens_val = 0;
+unsigned int markerInfo = 0;
 const int sens_coefficient[5] = {1, 11, 21, 31, 41}; 
 
 
@@ -22,15 +22,7 @@ void sensor_read()
   }
 }
 
-int dig_sens_read()
-{
-  unsigned int dig_sens_val;
-  dig_sens_val = analogRead(A5);
-  dig_sens_val = dig_sens_val >> 3;
-  dig_sens_val ++;
-  dig_sens_val = dig_sens_val >> 3;
-  return dig_sens_val;
-}
+
 
 float line_pos(int *status)
 {
@@ -56,11 +48,11 @@ float line_pos(int *status)
   }
   line_pos = sens_cal / sens_sum;
   
-  unsigned int dig_sens_val;
-  dig_sens_val = dig_sens_read() & 0b0110;
+  byte markerInfo;
+  markerInfo = getMarkerDigital();
   
    *status = 1;
-  switch(dig_sens_val){
+  switch(markerInfo){
    case 0b0110: line_pos = last_pos; break;
    case 0b0010: line_pos = 0.0; break;
    case 0b0100: line_pos = 40.0; break;
@@ -71,37 +63,112 @@ float line_pos(int *status)
   return line_pos;
 }
 
-int a_dig_read(){ return PINC & 0b011111; }
+byte getMarkerDigital(){
+  byte marker = analogRead(A5);
+  /*
+  よくわかんない
+  */
+  return (0b11);
+}
 
-int dig_sens_pos(int *status)
+byte getLineDigital(){ 
+  return ~(PINC) & 0b011111; //white line
+  //return PINC & 0b011111; //black line
+}
+
+int getPosition(int *status)
 {
-  int pos = 0;
-  static int last_pos;
-  int dig_sens_val = dig_sens_read() & 0b0110;
-  
   *status = 1;
-  switch(a_dig_read()){
-  
-  case 0b11110: pos = 20; break;
-  case 0b11100: pos = 12; break;
-  case 0b11000: pos = 10; break;
-  case 0b11001: pos = 2; break;
-  case 0b10001: pos = 0; break;
-  case 0b10011: pos = -2; break;
-  case 0b00011: pos = -10; break;
-  case 0b00111: pos = -12; break;
-  case 0b01111: pos = -20; break;
-  
-  case 0b11111: 
-  if (dig_sens_val == 0b0100) { pos = -30; }
-  else if (dig_sens_val == 0b0010) { pos = 30; }
-  else { *status = 0; pos = last_pos;} break;
-  case 0b00000:  pos = last_pos; break;
-  
-  default: pos = last_pos; break;
+
+
+  byte markerInfo = getMarkerDigital();
+  byte lineInfo = getLineDigital();
+
+  int pos = sensorToPosition( lineInfo );
+
+  if (lineInfo == 0b0000){
+    if (markerInfo == 0b100) pos = -30;
+    else if (markerInfo == 0b010) pos = 30;
+    else *status = 0;
   }
-  last_pos = pos;
-  
+
+
   return pos;
 }
 
+int sensorToPosition(byte line_state){
+  static int last_pos;
+  int pos = last_pos;
+
+  switch( line_state ){
+    case 0b00001: pos = 20; break;
+    case 0b00011: pos = 12; break;
+    case 0b00111: pos = 10; break;
+    case 0b00110: pos = 2; break;
+    case 0b01110: pos = 0; break;
+    case 0b01100: pos = -2; break;
+    case 0b11100: pos = -10; break;
+    case 0b11000: pos = -12; break;
+    case 0b10000: pos = -20; break;
+  }
+  last_pos = pos;
+  return pos;
+}
+
+//マーカー読み込み->状態決定
+char marker_read(void)
+{
+  static boolean sw_r = false;
+  static boolean sw_l = false;
+  static byte flag = 0b000;
+  static char marker = 0;
+  static char last_marker = 0;
+  int marker_sens_R = getMarkerDigital() & 0b0001;
+  int marker_sens_L = getMarkerDigital() & 0b1000;
+  int marker_sens_D = getMarkerDigital() & 0b1001;
+  
+  if((marker_sens_R == 0b0001)&&(sw_r == false))
+  {
+    flag += 0b01;
+    sw_r = true;
+  }
+  
+  if((marker_sens_L == 0b1000)&&(sw_l == false))
+  {
+    flag += 0b10;
+    sw_l = true;
+  }
+  
+  if(marker_sens_D == 0b0000)
+  {
+    switch(flag)
+    {
+      case 0b01: marker = 'r'; break;
+      case 0b10: marker = 'l'; break;
+      case 0b11: marker = 'd'; break;
+      default: marker = last_marker; 
+    }
+    sw_r = false;
+    sw_l = false;
+    flag = 0;
+  } 
+  last_marker = marker;
+  return marker;
+}
+
+//マーカ判断後の動作定義
+char pos_state(void)
+{
+  const char patturn[10] = 
+  {
+    'r','r','d','d','r','l','r','l','d','d'
+  };
+  
+  const char pos_state[10] = 
+  {
+    'e','f','x','x','a','b','c','d','x','x'
+  };
+   
+  
+   
+}

@@ -19,19 +19,6 @@ Motor motorL(MOTOR_R_PWM_PIN,30);
 Motor motorR(MOTOR_L_PWM_PIN,30);
 
 
-void init_pins();
-void blink_swich();
-void init_sensor();
-
-void sensor_read();
-int dig_sens_read();
-float line_pos(int *status);
-int a_dig_read();
-int dig_sens_pos(int *status);
-
-char maker_read(void);
-
-
 
 void setup()
 {
@@ -62,7 +49,7 @@ void loop()
     
   e[2] = e[1];
   e[1] = e[0];
-  e[0] = dig_sens_pos(&status);
+  e[0] = getPosition(&status);
  
   dCv += Kp * (e[0] - e[1]); //P_out
 //  dCv += Kp * (dt/Ti) * e[0]; //I_out
