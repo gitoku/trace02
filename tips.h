@@ -22,7 +22,7 @@ unsigned long getdt_usec(){
 #define BLINK_INTERVAL 1000	//点滅周期(msec)
 
 //スイッチが押されるまでLED点滅させて待つ
-void blink_swich(){
+void waitUntilClick(){
   while(!digitalRead(SW_PIN)){
     digitalWrite(LED_PIN, (millis()%BLINK_INTERVAL)<(BLINK_INTERVAL/2) );
   }

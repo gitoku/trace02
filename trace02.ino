@@ -75,7 +75,7 @@ void setup()
   noTone(8);
 
   Serial.println("Ready");
-  blink_swich();
+  waitUntilClick();
   digitalWrite(13, LOW);
   
 }
@@ -116,7 +116,7 @@ void loop()
   {
    motorL.stop();
    motorR.stop();
-   blink_swich();
+   waitUntilClick();
   }
   else
   {

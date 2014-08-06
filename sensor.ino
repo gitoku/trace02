@@ -10,7 +10,7 @@ const int sens_coefficient[5] = {1, 11, 21, 31, 41};
   //黒上でボタン押す
 void init_sensor()
 {
-  blink_swich();
+  waitUntilClick();
   digitalWrite(13, HIGH);
   
   for(int i=0; i<100; i++)
@@ -27,7 +27,7 @@ void init_sensor()
   tone(8, 2300, 100);
   digitalWrite(13, LOW);
   
-  blink_swich();
+  waitUntilClick();
   digitalWrite(13, HIGH);
   
   for(int i=0; i<100; i++)
@@ -49,7 +49,7 @@ void init_sensor()
   {
     sens_ent_diff[i] =  sens_ent_line[i] - sens_ent_none[i];
   }
-  blink_swich();
+  waitUntilClick();
   digitalWrite(13, LOW);
 }
 
