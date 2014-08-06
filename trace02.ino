@@ -7,7 +7,6 @@
 #define Kp 1.0
 #define Td 0.05
 #define Ti 1.0
-#define Dt 0.005
 
 unsigned long s_time, e_time;
 unsigned int lost_count = 0;
@@ -36,19 +35,18 @@ char maker_read(void);
 
 void setup()
 {
-  PORTD = PORTD & 0b00001111;
   Serial.begin(9600);
   init_pins();
+
   tone(8, 1000, 100);
   delay(100);
   tone(8, 1500, 100);
   delay(100);
   noTone(8);
+
   Serial.println("Ready");
   blink_swich();
   digitalWrite(13, LOW);
-//  init_sensor();
-
   
 }
 
@@ -63,7 +61,9 @@ void inc_pos_L()
 }
 
 void loop()
-{
+{ 
+  dt = getDt(); //get run period(usec)
+
   s_time = micros();
 //  t_count_1 = s_time;
   float dCv = 0;
@@ -75,7 +75,7 @@ void loop()
  
   dCv += Kp * (e[0] - e[1]); //P_out
 //  dCv += Kp * (Dt/Ti) * e[0]; //I_out
-  dCv += Kp * (Td/Dt) * (e[0] + e[2] - 2*e[1]); //D_out
+  dCv += Kp * (Td/dt) * (e[0] + e[2] - 2*e[1]); //D_out
   
   
   Cv[1] = Cv[0];

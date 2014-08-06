@@ -5,5 +5,5 @@ unsigned long getDt(){
 	unsigned long dt = now_time_usec - last_time_usec;
 	last_time_usec = now_time_usec;
 
-	return dt;
+	return max(dt,0);
 }

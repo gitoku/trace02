@@ -7,14 +7,14 @@ const int sens_coefficient[5] = {1, 11, 21, 31, 41};
 void sensor_read()
 {
   
-  PORTB &= ~_BV(2);//digitalWrite(10, LOW);
+  digitalWrite(10, LOW);
   delay(500);
   for(int i=0; i<5; i++)
   {
     sens_val[i] = analogRead(i);
   }
   
-  PORTB |= _BV(2);//digitalWrite(10, HIGH);
+  digitalWrite(10, HIGH);
   delay(500); 
   for(int i=0; i<5; i++)
   {
