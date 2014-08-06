@@ -107,3 +107,15 @@ void init_sensor()
   digitalWrite(13, LOW);
 }
 
+
+/*
+void inc_pos_R(long *encoder_R)
+{
+  encoder_R++;
+}
+
+void inc_pos_L(long *encoder_L)
+{
+  encoder_L++;
+}
+*/
