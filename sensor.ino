@@ -71,12 +71,7 @@ float line_pos(int *status)
   return line_pos;
 }
 
-int a_dig_read()
-{
-  int  sens_state = PINC;
-  sens_state = sens_state & 0b011111;  
-  return sens_state;
-}
+int a_dig_read(){ return PINC & 0b011111; }
 
 int dig_sens_pos(int *status)
 {
