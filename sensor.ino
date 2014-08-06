@@ -4,7 +4,57 @@ unsigned int markerInfo = 0;
 const int sens_coefficient[5] = {1, 11, 21, 31, 41}; 
 
 
-void sensor_read()
+//センサー初期化
+//キャリブレーション
+  //白上でボタン押す
+  //黒上でボタン押す
+void init_sensor()
+{
+  blink_swich();
+  digitalWrite(13, HIGH);
+  
+  for(int i=0; i<100; i++)
+  {
+    for(int n=0; n<5; n++)
+    {
+      getLineAnalog();
+      if(sens_ent_line[n] < sens_val[n])
+      {
+        sens_ent_line[n] = sens_val[n];
+      }
+    }
+  }
+  tone(8, 2300, 100);
+  digitalWrite(13, LOW);
+  
+  blink_swich();
+  digitalWrite(13, HIGH);
+  
+  for(int i=0; i<100; i++)
+  {
+    for(int n=0; n<5; n++)
+    {
+      getLineAnalog();
+      if(sens_ent_none[n] > sens_val[n])
+      {
+        sens_ent_none[n] = sens_val[n];
+      }
+    }
+  }
+  
+  tone(8, 2000, 100);
+  digitalWrite(13, LOW);
+  
+  for(int i=0; i<5; i++)
+  {
+    sens_ent_diff[i] =  sens_ent_line[i] - sens_ent_none[i];
+  }
+  blink_swich();
+  digitalWrite(13, LOW);
+}
+
+
+void getLineAnalog()
 {
   
   digitalWrite(10, LOW);
@@ -31,7 +81,7 @@ float line_pos(int *status)
   float line_pos = 0.0;
   static float last_pos = 0.0;
   
-  sensor_read();
+  getLineAnalog();
   for(int i=0; i<5; i++)
   {
     sensor_value_0[i] = sens_val[i] - sens_ent_none[i];
@@ -84,23 +134,10 @@ int getPosition(int *status)
   byte markerInfo = getMarkerDigital();
   byte lineInfo = getLineDigital();
 
-  int pos = sensorToPosition( lineInfo );
-
-  if (lineInfo == 0b0000){
-    if (markerInfo == 0b100) pos = -30;
-    else if (markerInfo == 0b010) pos = 30;
-    else *status = 0;
-  }
-
-
-  return pos;
-}
-
-int sensorToPosition(byte line_state){
   static int last_pos;
   int pos = last_pos;
 
-  switch( line_state ){
+  switch( lineInfo ){
     case 0b00001: pos = 20; break;
     case 0b00011: pos = 12; break;
     case 0b00111: pos = 10; break;
@@ -110,10 +147,18 @@ int sensorToPosition(byte line_state){
     case 0b11100: pos = -10; break;
     case 0b11000: pos = -12; break;
     case 0b10000: pos = -20; break;
+
+    case 0b00000:
+      if (markerInfo == 0b100) pos = -30;
+      else if (markerInfo == 0b010) pos = 30;
+      else *status = 0;
+    break;
   }
   last_pos = pos;
+
   return pos;
 }
+
 
 //マーカー読み込み->状態決定
 char marker_read(void)
