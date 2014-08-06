@@ -1,4 +1,5 @@
 #include "motor.h"
+#include "tips.h"
 
 #define line_center 15.0
 #define lost_line_time 200
