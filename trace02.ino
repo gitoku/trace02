@@ -60,30 +60,6 @@ void inc_pos_R(){
 
 }
 
-//[目的]
-//.5周期でスイッチがちかちかして
-//いつ押しても反応する
-void blink_swich()
-{
-  boolean output = HIGH;
-  int count = 0;
-  for(;;)
-  {
-    digitalWrite(13, output);
-    delay(1000);
-    count ++;
-    if(count > 500)
-    {
-      count = 0;
-      output = !output;
-    }
-    if(digitalRead(12) == HIGH)
-    {
-      break;
-    }
-  }
-  while(digitalRead(12) == HIGH);
-}
 
 
 
