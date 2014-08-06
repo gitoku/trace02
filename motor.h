@@ -5,62 +5,69 @@
 #define MOTOR_L_PWM_PIN 6
 #define MOTOR_R_PWM_PIN 5
 #define PWM_DUTY_MAX 255
+#define PWM_DUTY_MIN 0
 
 class Motor
 {
 	private:
 		int pin;
-		int pwm_width;
+		int pwm_duty;
 		int pwm_duty_limit;
-		int pwmLimit(int _pwm_width);
+		int pwmLimit(int _pwm_duty);
 	public:
 		Motor(int _pin);
-		void pinSet(int _pin);
-		void limitSet(int _limit);
-		void pwmSet(int _pwm_width);
-		void pwmOut();
-		void pwmOut(int _pwm_width);
-		void pwmOut(float duty);
-		void pwmStop();
+		void setPin(int _pin);
+		void setLimit(int _limit);
+		void setDuty(int _pwm_duty);
+		void write();
+		void write(int _pwm_duty);
+		void write(float duty);
+		void stop();
 };
 
 Motor::Motor(int _pin){
-	pwm_duty_limit = PWM_DUTY_MAX;
-	pwm_width = 0;
-	pinSet(_pin);
+	setPin(_pin);
+	setLimit(PWM_DUTY_MAX);
+	stop();
 }
 
-void Motor::pinSet(int _pin){
+Motor::Motor(int _pin, int _pwm_duty_limit){
+	setPin(_pin);
+	setLimit(_pwm_duty_limit);
+	stop();
+}
+
+void Motor::setPin(int _pin){
 	pin = _pin;
 }
-void Motor::limitSet(int _limit){
+void Motor::setLimit(int _limit){
 	pwm_duty_limit = _limit;
 }
-int Motor::pwmLimit(int _pwm_width){
-	return min(max(_pwm_width,0),pwm_duty_limit);
+int Motor::pwmLimit(int _pwm_duty){
+	return constrain(_pwm_duty, PWM_DUTY_MIN, pwm_duty_limit);
 }
 
 
-void Motor::pwmSet(int _pwm_width){
-	pwm_width = pwmLimit( _pwm_width );
+void Motor::setDuty(int _pwm_duty){
+	pwm_duty = pwmLimit( _pwm_duty );
 }
 
 
-void Motor::pwmOut(){
-	analogWrite(pin, pwm_width);
+void Motor::write(){
+	analogWrite(pin, pwm_duty);
 }
-void Motor::pwmOut(int _pwm_width){
-	pwmSet( _pwm_width );
-	pwmOut();
+void Motor::write(int _pwm_duty){
+	setDuty( _pwm_duty );
+	write();
 }
-void Motor::pwmOut(float duty){
-	pwmOut( (int)(duty * PWM_DUTY_MAX) );
+void Motor::write(float float_duty){
+	write( (int)(float_duty * PWM_DUTY_MAX) );
 }
 
 
-void Motor::pwmStop(){
-	pwmSet(0);
-	pwmOut();
+void Motor::stop(){
+	setDuty(PWM_DUTY_MIN);
+	write();
 }
 
 #endif

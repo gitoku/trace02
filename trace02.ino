@@ -16,8 +16,8 @@ unsigned int encoder_L = 0;
 float e[3];
 float Cv[2] = {0.0, 0.0};
 
-Motor motorR(MOTOR_L_PWM_PIN);
-Motor motorL(MOTOR_R_PWM_PIN);
+Motor motorR(MOTOR_L_PWM_PIN,30);
+Motor motorL(MOTOR_R_PWM_PIN,30);
 
 void setup()
 {
@@ -33,10 +33,6 @@ void setup()
   blink_swich();
   digitalWrite(13, LOW);
 //  init_sensor();
-
-  //モータpwm dutyの上限設定
-  motorR.limitSet(30);
-  motorL.limitSet(30);
 
   
 }
@@ -89,14 +85,14 @@ void loop()
   {
     if(Cv[0] > 0)
     {
-     motorL.pwmOut(speed_default - (int)Cv[0]);
-     motorR.pwmOut(speed_default);
+     motorL.write(speed_default - (int)Cv[0]);
+     motorR.write(speed_default);
     }
     else
     {
 
-     motorL.pwmOut(speed_default);
-     motorR.pwmOut(speed_default - (int)Cv[0]);
+     motorL.write(speed_default);
+     motorR.write(speed_default - (int)Cv[0]);
     }
   }
  
