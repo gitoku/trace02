@@ -4,7 +4,7 @@
 
 #define MOTOR_L_PWM_PIN 6
 #define MOTOR_R_PWM_PIN 5
-#define PWM_DUTY_MAX 255
+#define PWM_DUTY_MAX 255	//8bit
 #define PWM_DUTY_MIN 0
 
 class Motor
@@ -13,7 +13,6 @@ class Motor
 		int pin;
 		int pwm_duty;
 		int pwm_duty_limit;
-		int pwmLimit(int _pwm_duty);
 	public:
 		Motor(int _pin);
 		Motor(int _pin, int _pwm_duty_limit);
@@ -42,15 +41,12 @@ void Motor::setPin(int _pin){
 	pin = _pin;
 }
 void Motor::setLimit(int _limit){
-	pwm_duty_limit = _limit;
-}
-int Motor::pwmLimit(int _pwm_duty){
-	return constrain(_pwm_duty, PWM_DUTY_MIN, pwm_duty_limit);
+	pwm_duty_limit = constrain(_limit, PWM_DUTY_MIN, PWM_DUTY_MAX);
 }
 
 
 void Motor::setDuty(int _pwm_duty){
-	pwm_duty = pwmLimit( _pwm_duty );
+	pwm_duty = constrain( _pwm_duty , PWM_DUTY_MIN, pwm_duty_limit);
 }
 
 
