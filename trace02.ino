@@ -1,4 +1,3 @@
-#include "trace_test.h"
 #include "motor.h"
 
 #define line_center 15.0
@@ -18,6 +17,20 @@ float Cv[2] = {0.0, 0.0};
 
 Motor motorL(MOTOR_R_PWM_PIN,30);
 Motor motorR(MOTOR_L_PWM_PIN,30);
+
+
+void init_pins();
+void blink_swich();
+void init_sensor();
+
+void sensor_read();
+int dig_sens_read();
+float line_pos(int *status);
+int a_dig_read();
+int dig_sens_pos(int *status);
+
+char maker_read(void);
+
 
 
 void setup()
@@ -79,7 +92,8 @@ void loop()
   
   if(lost_count >= lost_line_time)
   {
-   m_stop();
+   motorL.stop();
+   motorR.stop();
    blink_swich();
   }
   else
