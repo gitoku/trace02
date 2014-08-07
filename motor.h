@@ -1,6 +1,11 @@
 #ifndef motor_h
 #define motor_h
 
+#if ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 
 #define MOTOR_L_PWM_PIN 6
 #define MOTOR_R_PWM_PIN 5

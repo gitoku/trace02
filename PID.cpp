@@ -46,6 +46,7 @@ bool PID::Compute(double _Input, double* _Output,double _Setpoint)
     myOutput = _Output;
     *myInput = _Input;
     *mySetpoint = _Setpoint;
+    
    if(!inAuto) return false;
    unsigned long now = millis();
    unsigned long timeChange = (now - lastTime);

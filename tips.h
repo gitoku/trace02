@@ -1,6 +1,11 @@
+#ifndef tip_h
+#define tip_h
 
-
-
+#if ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 
 //直前のgetdt_usec実行からの経過時間(usec)を返す
 unsigned long getdt_usec(){
@@ -46,3 +51,5 @@ void intervalDelay_usec(int period){
 	while( (now_time - last_time) < period ) now_time = micros();
 	last_time = now_time;
 }
+
+#endif

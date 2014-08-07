@@ -82,31 +82,15 @@ void setup(){
 
 
 void loop(){
-
-
-	static unsigned int lost_count = 0;
-	static int last_in = 0;
-	static int total_in = 0;
-	
 	int status;
-	int in = getPosition(&status);
-	total_in += in;
+	double in = (double)getPosition(&status);
+	double out;
 
-	int out = 0;
-	out += Kp * in; //P_out
-	out += Ki * (total_in * inv_dt); //I_out
-	out += Kd * (in - last_in) / inv_dt; //D_out
-
+	pid.Compute(in,&out,0);
 
 	if(status){
-		if(Cv[0] > 0){
-			motorL.write(speed_default - (int)Cv[0]);
-			motorR.write(speed_default);
-		}
-		else{
-			motorL.write(speed_default);
-			motorR.write(speed_default - (int)Cv[0]);
-		}
+		motorL.write(speed_default - (int)out);
+		motorR.write(speed_default + (int)out);
 		lost_count = 0;
 	}
 	else lost_count++;	//ラインをロストした時間を得る

@@ -1,7 +1,11 @@
 #ifndef sensor_h
 #define sensor_h
 
-
+#if ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 
 class Sensor
 {
