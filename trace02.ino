@@ -1,5 +1,5 @@
-#include "motor.h"
-#include "sensor.h"
+#include "Motor.h"
+#include "Sensor.h"
 #include "Servo.h"
 #include "PID.h"
 
