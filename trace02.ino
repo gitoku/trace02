@@ -1,4 +1,5 @@
 #include "motor.h"
+// #include "sensor.h"
 #include "PID.h"
 
 
@@ -93,7 +94,8 @@ void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
 
 	int status;
-	double in = (double)getPosition(&status);
+	// double in = (double)getPosition(&status);
+	double in = 0;
 	int out = (int)pid.Compute(in,LINE_CENTER);
 	
 	//モータ出力
