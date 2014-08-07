@@ -11,7 +11,6 @@
 
 #define PWM_DUTY_MAX 255	//8bit
 #define PWM_DUTY_MIN 0
-
 enum Mode {ON_BRAKE=0,ON_FREE=1};
 
 
@@ -23,16 +22,16 @@ class Motor
 		int pwm_duty;
 		int pwm_duty_limit;
 	public:
-		Motor(int _pwm_pin,int _free_pin);
-		Motor(int _pwm_pin,int _free_pin, int _pwm_duty_limit);
-		void setLimit(int _limit);
-		void setMode(Mode mode);
-		void setDuty(int _pwm_duty);
-		void write();
-		void write(int _pwm_duty);
-		void write(float float_duty);
-		void stop();
-		void brake();
+		Motor(int _pwm_pin,int _free_pin);	//ピン設定して初期化
+		Motor(int _pwm_pin,int _free_pin, int _pwm_duty_limit);	//ピンとpwm_duty上限を与えて初期化
+		void setLimit(int _limit);	//pwm_duty上限の設定
+		void setMode(Mode mode);	//pwmモードの設定[ON-BRAKE,ON-FREE]
+		void setDuty(int _pwm_duty);	//pwm_dutyの設定
+		void write();	//現在のpwm_dutyを出力
+		void write(int _pwm_duty);	//pwm_dutyを指定して出力
+		void write(float float_duty);	//float型(0~1)でpwm_dutyを指定して出力
+		void free();	//フリー
+		void brake();	//ブレーキ
 };
 
 Motor::Motor(int _pwm_pin,int _free_pin){
@@ -43,9 +42,8 @@ Motor::Motor(int _pwm_pin, int _free_pin, int _pwm_duty_limit){
 	pwm_pin = _pwm_pin;
 	free_pin = _free_pin;
 	pinMode(free_pin,OUTPUT);
-	setMode(ON_BRAKE);
 	setLimit(_pwm_duty_limit);
-	stop();
+	free();
 }
 
 void Motor::setLimit(int _limit){
@@ -74,13 +72,14 @@ void Motor::write(float float_duty){
 }
 
 
-void Motor::stop(){
+void Motor::free(){
+	setMode(ON_FREE);
 	write(PWM_DUTY_MIN);
 }
 
 void Motor::brake(){
 	setMode(ON_BRAKE);
-	stop();
+	write(PWM_DUTY_MIN);
 }
 
 #endif

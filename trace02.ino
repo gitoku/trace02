@@ -27,7 +27,7 @@
 
 
 //PID制御関係
-#define dt_msec  20	//制御周期
+#define DT  20	//制御周期
 #define Kp 1.0
 #define Ki 1.0
 #define Kd 1.0
@@ -61,7 +61,7 @@ void setup(){
 	encoder_L = 0;
 	
 	//PID制御
-	pid.SetSampleTime(dt_msec);
+	pid.SetSampleTime(DT);
 	pid.SetMode(AUTOMATIC);
 
 	//起動音
@@ -78,38 +78,43 @@ void setup(){
 	//スイッチがクリックされるまで待つ
 	waitUntilClick();
 	delay(500);
+
+	//モーターモード
+	motorR.setMode(ON_BRAKE);
+	motorL.setMode(ON_BRAKE);
 }
 
 
 
-#define speed_default 30 //30, 1.1 //40, 1.1 s=0.6
-#define line_center 15.0
-#define lost_line_time  (200 / dt_msec)
+#define LINE_CENTER 0
+#define SAFETY_TIMELIMIT 200	//[msec]
 
 void loop(){
-	static int lost_count = 0;
+	static int line_lost_time = 0;	//ラインをロストした時間[msec]
 
 	int status;
 	double in = (double)getPosition(&status);
-	int out = (int)pid.Compute(in,line_center);
-
+	int out = (int)pid.Compute(in,LINE_CENTER);
+	
+	//モータ出力
+	int speed_default = 30; //30, 1.1 //40, 1.1 s=0.6
 	if(status){
 		motorL.write(speed_default - out);
 		motorR.write(speed_default + out);
-		lost_count = 0;
+		line_lost_time = 0;
 	}
-	else lost_count++;	//ラインをロストした時間を得る
+	else line_lost_time += DT;
 	
 	
 	//ラインロストから一定時間立っていれば緊急停止
-	if(lost_count > lost_line_time){
+	if( line_lost_time > SAFETY_TIMELIMIT ){
 		motorL.brake();
 		motorR.brake();
 		waitUntilClick();
 	}
 
-	//制御周期dt_msec[ms]になるように待つ
-	intervalDelay_msec(dt_msec);
+	//制御周期DT[ms]になるように待つ
+	intervalDelay_msec(DT);
 }
 
 
