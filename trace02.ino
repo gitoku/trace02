@@ -1,5 +1,6 @@
 #include "motor.h"
 #include "sensor.h"
+#include "Servo.h"
 #include "PID.h"
 
 
@@ -34,13 +35,13 @@
 #define Kd 1.0
 PID pid(Kp,Ki,Kd, DIRECT);
 
-
-//モータ(max duty = 30)
+//モータ
 Motor motorR;
 Motor motorL;
 
-//センサー
-Sensor sensor;
+//槍
+#define LANCER_CENTER 90
+Servo lancer;
 
 //エンコーダー
 volatile unsigned int encoder_R;
@@ -67,6 +68,10 @@ void setup(){
 	encoder_R = 0;
 	encoder_L = 0;
 	
+	//ランサー
+	lancer.attach(LANCER_PIN);
+	lancer.write(LANCER_CENTER);
+
 	//PID制御
 	pid.SetSampleTime(DT);
 	pid.SetMode(AUTOMATIC);
@@ -82,7 +87,7 @@ void setup(){
 	waitUntilClick();
 	delay(500);
 
-	//モーター
+	//モーター(max duty = 30)
 	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
 	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
 	motorR.setMode(ON_BRAKE);
@@ -113,6 +118,11 @@ void loop(){
 	}
 	else line_lost_time += DT;
 	
+	//ランサー制御
+	/*
+
+
+	*/
 	
 	//ラインロストから一定時間立っていれば緊急停止
 	if( line_lost_time > SAFETY_TIMELIMIT ){
