@@ -86,9 +86,11 @@ void setup(){
 	waitUntilClick();
 	delay(500);
 
-	//モーター(max duty = 30)
-	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
-	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
+	//モーター(max duty = 40)
+	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN);
+	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN);
+	motorR.setLimit(40);
+	motorL.setLimit(40);
 	motorR.setMode(ON_BRAKE);
 	motorL.setMode(ON_BRAKE);
 
@@ -174,7 +176,11 @@ void calibration(){
 	Sensor::getLineAnalog(maximum);
 	Sensor::getLineAnalog(minimum);
 	
-	while(!digitalRead(SW_PIN)){
+	motorR.free();
+	motorL.free();
+
+	//手動で床上を走らせ、センサたちに白と黒を教えて下さい(持ち上げないこと)
+	while(!digitalRead(SW_PIN)){	
 		int sens_val[5];
 		Sensor::getLineAnalog(sens_val);
 		for(int n=0; n<5; n++){

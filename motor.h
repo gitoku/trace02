@@ -11,7 +11,7 @@
 
 #define PWM_DUTY_MAX 255	//8bit
 #define PWM_DUTY_MIN 0
-enum Mode {ON_BRAKE=0,ON_FREE=1};
+enum Mode {ON_BRAKE=0,ON_FREE=1,NO_BUFFER};
 
 
 class Motor
@@ -21,6 +21,8 @@ class Motor
 		int free_pin;
 		int pwm_duty;
 		int pwm_duty_limit;
+		Mode pwm_mode;
+		Mode mode_buf;
 	public:
 		void attach(int _pwm_pin, int _free_pin, int _pwm_duty_limit);	//ピンとpwm_duty上限を与えて初期化
 		void setLimit(int _limit);	//pwm_duty上限の設定
@@ -38,7 +40,7 @@ void Motor::attach(int _pwm_pin, int _free_pin, int _pwm_duty_limit = PWM_DUTY_M
 	free_pin = _free_pin;
 	pinMode(free_pin,OUTPUT);
 	setLimit(_pwm_duty_limit);
-	free();
+	setMode(ON_BRAKE);
 }
 
 void Motor::setLimit(int _limit){
@@ -46,6 +48,7 @@ void Motor::setLimit(int _limit){
 }
 
 void Motor::setMode(Mode mode){
+	pwm_mode = mode;
 	digitalWrite(free_pin,mode);
 }
 
@@ -56,6 +59,10 @@ void Motor::setDuty(int _pwm_duty){
 
 
 void Motor::write(){
+	if(mode_buf!=NO_BUFFER){
+		setMode(mode_buf);
+		mode_buf = NO_BUFFER;
+	}
 	analogWrite(pwm_pin, pwm_duty);
 }
 void Motor::write(int _pwm_duty){
@@ -68,11 +75,13 @@ void Motor::write(float float_duty){
 
 
 void Motor::free(){
+	mode_buf = pwm_mode;
 	setMode(ON_FREE);
 	write(PWM_DUTY_MIN);
 }
 
 void Motor::brake(){
+	mode_buf = pwm_mode;
 	setMode(ON_BRAKE);
 	write(PWM_DUTY_MIN);
 }
