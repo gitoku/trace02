@@ -22,8 +22,7 @@ class Motor
 		int pwm_duty;
 		int pwm_duty_limit;
 	public:
-		void attach(int _pwm_pin,int _free_pin);	//ピン設定して初期化
-		void attach(int _pwm_pin,int _free_pin, int _pwm_duty_limit);	//ピンとpwm_duty上限を与えて初期化
+		void attach(int _pwm_pin, int _free_pin, int _pwm_duty_limit);	//ピンとpwm_duty上限を与えて初期化
 		void setLimit(int _limit);	//pwm_duty上限の設定
 		void setMode(Mode mode);	//pwmモードの設定[ON-BRAKE,ON-FREE]
 		void setDuty(int _pwm_duty);	//pwm_dutyの設定
@@ -34,11 +33,7 @@ class Motor
 		void brake();	//ブレーキ
 };
 
-void Motor::attach(int _pwm_pin,int _free_pin){
-	attach(_pwm_pin, _free_pin, PWM_DUTY_MAX);
-}
-
-void Motor::attach(int _pwm_pin, int _free_pin, int _pwm_duty_limit){
+void Motor::attach(int _pwm_pin, int _free_pin, int _pwm_duty_limit = PWM_DUTY_MAX){
 	pwm_pin = _pwm_pin;
 	free_pin = _free_pin;
 	pinMode(free_pin,OUTPUT);

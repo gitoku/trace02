@@ -7,22 +7,25 @@
   #include "WProgram.h"
 #endif
 
-namespace Sensor{
 
-	void measure();
+enum Color {WHITE, BLACK};
+
+namespace Sensor {
+	byte line_status;
+	byte marker_status;
+
+	void measure(Color line_color);
 	int getLinePosition();
 	bool getOnline();
 	byte getMarker();
-	// float line_pos(int *status):
-	// int getPosition(int *status);
-	// char marker_read(void);
+	byte getMarkerDigital(Color line_color);
+	byte getLineDigital(Color line_color);
 };
 
 
-
-
-void Sensor::measure(){
-
+void Sensor::measure(Color line_color = WHITE){
+	line_status = getLineDigital(line_color);
+	marker_status = getMarkerDigital(line_color);
 }
 
 int Sensor::getLinePosition(){
@@ -38,7 +41,19 @@ byte Sensor::getMarker(){
 }
 
 
+byte Sensor::getMarkerDigital(Color line_color){
+  byte marker = analogRead(A5);
+  /*
+  よくわかんない
+  */
+  if(line_color == WHITE) return (0b11);
+  if(line_color == BLACK) return (0b11);
+}
 
+byte Sensor::getLineDigital(Color line_color){ 
+  if(line_color == WHITE) return ~(PINC) & 0b011111;
+  if(line_color == BLACK) return PINC & 0b011111;
+}
 
 
 
