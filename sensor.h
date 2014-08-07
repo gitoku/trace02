@@ -7,53 +7,94 @@
   #include "WProgram.h"
 #endif
 
-
+#define IRLED_PIN 10
 enum Color {WHITE, BLACK};
 
 namespace Sensor {
 	byte line_status;
 	byte marker_status;
-
+	int line_position;
+	
+	void init();
 	void measure(Color line_color);
 	int getLinePosition();
 	bool getOnline();
 	byte getMarker();
 	byte getMarkerDigital(Color line_color);
 	byte getLineDigital(Color line_color);
+	void calcPosition();
 };
 
+void Sensor::init(){
+	pinMode(IRLED_PIN, OUTPUT);
+	digitalWrite(IRLED_PIN, HIGH);	//ONのつもり
+	pinMode(A0, INPUT);
+	pinMode(A1, INPUT);
+	pinMode(A2, INPUT);
+	pinMode(A3, INPUT);
+	pinMode(A4, INPUT);
+	pinMode(A5, INPUT);
+}
 
 void Sensor::measure(Color line_color = WHITE){
 	line_status = getLineDigital(line_color);
 	marker_status = getMarkerDigital(line_color);
+	calcPosition();
 }
 
 int Sensor::getLinePosition(){
-	return 1;
+	return line_position;
 }
 
 bool Sensor::getOnline(){
+	if(line_status == 0b00000) return false;
 	return true;
 }
 
 byte Sensor::getMarker(){
-	return 0;
+	return marker_status;
 }
 
 
 byte Sensor::getMarkerDigital(Color line_color){
-  byte marker = analogRead(A5);
-  /*
-  よくわかんない
-  */
-  if(line_color == WHITE) return (0b11);
-  if(line_color == BLACK) return (0b11);
+	byte marker = analogRead(A5);
+	/*
+	よくわかんない
+	*/
+	if(line_color == WHITE) return (0b11);
+	if(line_color == BLACK) return (0b11);
 }
 
 byte Sensor::getLineDigital(Color line_color){ 
-  if(line_color == WHITE) return ~(PINC) & 0b011111;
-  if(line_color == BLACK) return PINC & 0b011111;
+	if(line_color == WHITE) return ~(PINC) & 0b011111;
+	if(line_color == BLACK) return PINC & 0b011111;
 }
+
+void Sensor::calcPosition(){
+	int pos = line_position;
+
+	switch( line_status ){
+		case 0b00001: pos = 20; break;
+		case 0b00011: pos = 12; break;
+		case 0b00111: pos = 10; break;
+		case 0b00110: pos = 2; break;
+		case 0b01110: pos = 0; break;
+		case 0b01100: pos = -2; break;
+		case 0b11100: pos = -10; break;
+		case 0b11000: pos = -12; break;
+		case 0b10000: pos = -20; break;
+
+		case 0b00000:
+			if (marker_status == 0b0100) pos = -30;
+			else if (marker_status == 0b0010) pos = 30;
+		break;
+	}
+
+	line_position = pos;
+}
+
+
+
 
 
 
@@ -71,16 +112,7 @@ byte Sensor::getLineDigital(Color line_color){
 
 
 
-// void sensor_init(){
 
-//   pinMode(IRLED_PIN, OUTPUT);
-//   pinMode(A0, INPUT);
-//   pinMode(A1, INPUT);
-//   pinMode(A2, INPUT);
-//   pinMode(A3, INPUT);
-//   pinMode(A4, INPUT);
-//   pinMode(A5, INPUT);
-// }
 
 // //センサー初期化
 // //キャリブレーション
@@ -191,51 +223,7 @@ byte Sensor::getLineDigital(Color line_color){
 //   return line_pos;
 // }
 
-// byte getMarkerDigital(){
-//   byte marker = analogRead(A5);
-//   /*
-//   よくわかんない
-//   */
-//   return (0b11);
-// }
 
-// byte getLineDigital(){ 
-//   return ~(PINC) & 0b011111; //white line
-//   //return PINC & 0b011111; //black line
-// }
-
-// int getPosition(int *status)
-// {
-//   *status = 1;
-
-
-//   byte markerInfo = getMarkerDigital();
-//   byte lineInfo = getLineDigital();
-
-//   static int last_pos;
-//   int pos = last_pos;
-
-//   switch( lineInfo ){
-//     case 0b00001: pos = 20; break;
-//     case 0b00011: pos = 12; break;
-//     case 0b00111: pos = 10; break;
-//     case 0b00110: pos = 2; break;
-//     case 0b01110: pos = 0; break;
-//     case 0b01100: pos = -2; break;
-//     case 0b11100: pos = -10; break;
-//     case 0b11000: pos = -12; break;
-//     case 0b10000: pos = -20; break;
-
-//     case 0b00000:
-//       if (markerInfo == 0b100) pos = -30;
-//       else if (markerInfo == 0b010) pos = 30;
-//       else *status = 0;
-//     break;
-//   }
-//   last_pos = pos;
-
-//   return pos;
-// }
 
 
 // //マーカー読み込み->状態決定
@@ -279,22 +267,6 @@ byte Sensor::getLineDigital(Color line_color){
 //   return marker;
 // }
 
-// //マーカ判断後の動作定義
-// char pos_state(void)
-// {
-//   const char patturn[10] = 
-//   {
-//     'r','r','d','d','r','l','r','l','d','d'
-//   };
-  
-//   const char pos_state[10] = 
-//   {
-//     'e','f','x','x','a','b','c','d','x','x'
-//   };
-   
-  
-   
-// }
 
 
 

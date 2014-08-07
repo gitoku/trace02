@@ -15,11 +15,10 @@
 #define MOTOR_L_FREE_PIN 7
 #define BUZZER_PIN 8
 #define LANCER_PIN 9
-#define IRLED_PIN 10
+#define IRLED_PIN 10	
 #define EXTRA_PIN 11	//?
 #define SW_PIN 12
 #define LED_PIN 13
-
 #define SENSOR0_PIN A0
 #define SENSOR1_PIN A1
 #define SENSOR2_PIN A2
@@ -111,12 +110,12 @@ void loop(){
 	
 	//モータ出力
 	int speed_default = 30; //30, 1.1 //40, 1.1 s=0.6
-	if( Sensor::getOnline() ){
+	if( Sensor::getOnline() ){	//センサがライン上に存在
 		motorL.write(speed_default - out);
 		motorR.write(speed_default + out);
 		line_lost_time = 0;
 	}
-	else line_lost_time += DT;
+	else line_lost_time += DT;	//センサを見失った
 	
 	//ランサー制御
 	byte state = Sensor::getMarker();
