@@ -102,15 +102,11 @@ void loop()
   Cv[1] = Cv[0];
   Cv[0] = Cv[1] + dCv;
   
-  
-  if(status == 0 && lost_count < lost_line_time)
-  {
-    lost_count++;
-  }
-  else if(status == 1)
-  {
-    lost_count = 0;
-  }
+	//積分処理っぽい
+	if(status)	lost_count = 0;
+	else if(lost_count < lost_line_time) lost_count++;
+
+
   
   if(lost_count >= lost_line_time)
   {
@@ -118,8 +114,7 @@ void loop()
    motorR.stop();
    waitUntilClick();
   }
-  else
-  {
+  else{
     if(Cv[0] > 0)
     {
      motorL.write(speed_default - (int)Cv[0]);
