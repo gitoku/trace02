@@ -1,6 +1,6 @@
 #include "motor.h"
-#include "tips.h"
 #include "PID.h"
+
 
 //ピン番号
 #define ENCODER_R_INT 0
@@ -18,6 +18,14 @@
 #define SW_PIN 12
 #define LED_PIN 13
 
+#define SENSOR0_PIN A0
+#define SENSOR1_PIN A1
+#define SENSOR2_PIN A2
+#define SENSOR3_PIN A3
+#define SENSOR4_PIN A4
+#define SENSOR_ARRAY_PIN A5
+
+
 //PID制御関係
 #define dt_msec  20	//制御周期
 #define Kp 1.0
@@ -25,9 +33,11 @@
 #define Kd 1.0
 PID pid(Kp,Ki,Kd, DIRECT);
 
+
 //モータ(max duty = 30)
 Motor motorR(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
 Motor motorL(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
+
 
 //エンコーダー
 volatile unsigned int encoder_R;
@@ -77,11 +87,12 @@ void setup(){
 #define lost_line_time  (200 / dt_msec)
 
 void loop(){
-	int status;
-	double in = (double)getPosition(&status);
-	double out;
 	static int lost_count = 0;
 
+	int status;
+	double in = (double)getPosition(&status);
+	
+	double out;
 	pid.Compute(in,&out,line_center);
 
 	if(status){
@@ -92,9 +103,10 @@ void loop(){
 	else lost_count++;	//ラインをロストした時間を得る
 	
 	
+	//ラインロストから一定時間立っていれば緊急停止
 	if(lost_count > lost_line_time){
-		motorL.stop();
-		motorR.stop();
+		motorL.brake();
+		motorR.brake();
 		waitUntilClick();
 	}
 
@@ -104,3 +116,23 @@ void loop(){
 
 
 
+//スイッチが押されるまでLED点滅させて待つ
+void waitUntilClick(){
+	const int BLINK_INTERVAL = 1000;	//点滅周期(msec)
+
+	while(!digitalRead(SW_PIN)){
+		digitalWrite(LED_PIN, (millis()%BLINK_INTERVAL)<(BLINK_INTERVAL/2) );
+	}
+	while(digitalRead(SW_PIN));
+	digitalWrite(LED_PIN, LOW);
+}
+
+
+//前回この関数が終了してから、period[ms]経過するまで待つ
+void intervalDelay_msec(int period){
+	static unsigned long last_time = 0;
+	unsigned long now_time = millis();
+
+	while( (now_time - last_time) < period ) now_time = millis();
+	last_time = now_time;
+}

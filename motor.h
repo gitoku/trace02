@@ -32,6 +32,7 @@ class Motor
 		void write(int _pwm_duty);
 		void write(float float_duty);
 		void stop();
+		void brake();
 };
 
 Motor::Motor(int _pwm_pin,int _free_pin){
@@ -74,8 +75,12 @@ void Motor::write(float float_duty){
 
 
 void Motor::stop(){
-	setDuty(PWM_DUTY_MIN);
-	write();
+	write(PWM_DUTY_MIN);
+}
+
+void Motor::brake(){
+	setMode(ON_BRAKE);
+	stop();
 }
 
 #endif
