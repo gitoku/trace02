@@ -3,14 +3,15 @@
 //#include <MsTimer2.h>
 
 #define line_center 15.0
-#define lost_line_time 200
 #define speed_default 30 //30, 1.1 //40, 1.1 s=0.6
 #define Kp 1.0
+#define Ki 1.0
+#define Kd 1.0
 #define Td 0.05
 #define Ti 1.0
 
 unsigned long s_time, e_time;
-unsigned int lost_count = 0;
+
 unsigned int encoder_R = 0;
 unsigned int encoder_L = 0;
 float e[3];
@@ -74,51 +75,49 @@ void setup(){
 }
 
 
-void loop()
-{ 
-  const int dt = 20;	//制御周期
+void loop(){
+	const int dt_msec = 20;	//制御周期
+	const int inv_dt = 1000/dt_msec;
+	const int lost_line_time = 200 / dt_msec;
+
+	static unsigned int lost_count = 0;
+	static int last_in = 0;
+	static int total_in = 0;
+	
+	int status;
+	int in = getPosition(&status);
+	total_in += in;
+
+	int out = 0;
+	out += Kp * in; //P_out
+	out += Ki * (total_in * inv_dt); //I_out
+	out += Kd * (in - last_in) / inv_dt; //D_out
 
 
-  float dCv = 0;
-  static int status;
-    
-  e[2] = e[1];
-  e[1] = e[0];
-  e[0] = getPosition(&status);
- 
-  dCv += Kp * (e[0] - e[1]); //P_out
-//  dCv += Kp * (dt/Ti) * e[0]; //I_out
-  dCv += Kp * (Td/dt) * (e[0] + e[2] - 2*e[1]); //D_out
-  
-  
-  Cv[1] = Cv[0];
-  Cv[0] = Cv[1] + dCv;
-  
-	//ラインをロストした時間を得る
-	if(status)	lost_count = 0;
-	else lost_count++;
+	if(status){
+		if(Cv[0] > 0){
+			motorL.write(speed_default - (int)Cv[0]);
+			motorR.write(speed_default);
+		}
+		else{
+			motorL.write(speed_default);
+			motorR.write(speed_default - (int)Cv[0]);
+		}
+		lost_count = 0;
+	}
+	else lost_count++;	//ラインをロストした時間を得る
 	
 	
-	if(lost_count >= lost_line_time){
+	if(lost_count > lost_line_time){
 		motorL.stop();
 		motorR.stop();
 		waitUntilClick();
 	}
 
-	if(Cv[0] > 0){
-		motorL.write(speed_default - (int)Cv[0]);
-		motorR.write(speed_default);
-	}
-	else{
-		motorL.write(speed_default);
-		motorR.write(speed_default - (int)Cv[0]);
-	}
-
-
 	Serial.println(Cv[0], 6);
 
-	//制御周期dt[ms]になるように待つ
-	intervalDelay_msec(dt);
+	//制御周期dt_msec[ms]になるように待つ
+	intervalDelay_msec(dt_msec);
 }
 
 
