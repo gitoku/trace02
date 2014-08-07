@@ -1,5 +1,5 @@
 #include "motor.h"
-// #include "sensor.h"
+#include "sensor.h"
 #include "PID.h"
 
 
@@ -36,9 +36,11 @@ PID pid(Kp,Ki,Kd, DIRECT);
 
 
 //モータ(max duty = 30)
-Motor motorR(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
-Motor motorL(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
+Motor motorR;
+Motor motorL;
 
+//センサー
+Sensor sensor();
 
 //エンコーダー
 volatile unsigned int encoder_R;
@@ -80,7 +82,9 @@ void setup(){
 	waitUntilClick();
 	delay(500);
 
-	//モーターモード
+	//モーター
+	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
+	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
 	motorR.setMode(ON_BRAKE);
 	motorL.setMode(ON_BRAKE);
 }
