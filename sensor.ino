@@ -4,6 +4,11 @@ unsigned int markerInfo = 0;
 const int sens_coefficient[5] = {1, 11, 21, 31, 41}; 
 
 
+int sens_val[5];
+int sens_ent_diff[5];
+int sens_ent_line[5] = {0, 0, 0, 0, 0};
+int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
+
 //センサー初期化
 //キャリブレーション
   //白上でボタン押す

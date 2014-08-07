@@ -19,9 +19,6 @@ unsigned long getdt_usec(){
 	return (int)max(dt,DT_MIN);
 }
 
-
-
-
 #define SW_PIN 12
 #define LED_PIN 13
 
@@ -44,12 +41,5 @@ void intervalDelay_msec(int period){
 	last_time = now_time;
 }
 
-void intervalDelay_usec(int period){
-	static unsigned long last_time = 0;
-	unsigned long now_time = micros();
-
-	while( (now_time - last_time) < period ) now_time = micros();
-	last_time = now_time;
-}
 
 #endif

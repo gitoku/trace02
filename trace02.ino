@@ -3,44 +3,31 @@
 #include "PID.h"
 //#include <MsTimer2.h>
 
-#define line_center 15.0
-#define speed_default 30 //30, 1.1 //40, 1.1 s=0.6
+
+//PID制御関係
+#define dt_msec  20	//制御周期
 #define Kp 1.0
 #define Ki 1.0
 #define Kd 1.0
-#define Td 0.05
-#define Ti 1.0
-
-unsigned long s_time, e_time;
-
-unsigned int encoder_R = 0;
-unsigned int encoder_L = 0;
-float e[3];
-float Cv[2] = {0.0, 0.0};
-
-Motor motorL(MOTOR_R_PWM_PIN,30);
-Motor motorR(MOTOR_L_PWM_PIN,30);
-
 PID pid(Kp,Ki,Kd, DIRECT);
 
 
-int sens_val[5];
-int sens_ent_diff[5];
-int sens_ent_line[5] = {0, 0, 0, 0, 0};
-int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
-
-#define dt_msec  20	//制御周期
-#define inv_dt  (1000/dt_msec)
-#define lost_line_time  (200 / dt_msec)
+//モータ
+Motor motorL(MOTOR_R_PWM_PIN,30);
+Motor motorR(MOTOR_L_PWM_PIN,30);
 
 
+//エンコーダー
+unsigned int encoder_R = 0;
+unsigned int encoder_L = 0;
 void inc_pos_L(){
-
+	encoder_L++;
 }
-
 void inc_pos_R(){
-
+	encoder_R++;
 }
+
+
 
 void setup(){
 	Serial.begin(9600);
@@ -63,14 +50,14 @@ void setup(){
 	attachInterrupt(0, inc_pos_R, CHANGE);
 	attachInterrupt(1, inc_pos_L, CHANGE);
 
+	pid.SetSampleTime(dt_msec);
+	pid.SetMode(AUTOMATIC);
+
 	tone(8, 1000, 100);
 	delay(100);
 	tone(8, 1500, 100);
 	delay(100);
 	noTone(8);
-
-	pid.SetSampleTime(dt_msec);
-	pid.SetMode(AUTOMATIC);
 
 	Serial.println("Ready");
 	waitUntilClick();
@@ -81,13 +68,18 @@ void setup(){
 }
 
 
+
+#define speed_default 30 //30, 1.1 //40, 1.1 s=0.6
+#define line_center 15.0
+#define lost_line_time  (200 / dt_msec)
+
 void loop(){
 	int status;
 	double in = (double)getPosition(&status);
 	double out;
 	static int lost_count = 0;
 
-	pid.Compute(in,&out,0);
+	pid.Compute(in,&out,line_center);
 
 	if(status){
 		motorL.write(speed_default - (int)out);
@@ -102,8 +94,6 @@ void loop(){
 		motorR.stop();
 		waitUntilClick();
 	}
-
-	Serial.println(Cv[0], 6);
 
 	//制御周期dt_msec[ms]になるように待つ
 	intervalDelay_msec(dt_msec);
