@@ -7,20 +7,15 @@
   #include "WProgram.h"
 #endif
 
-class Sensor
-{
-	private:
-		// void getLineAnalog();
-		// byte getMarkerDigital():
-		// byte getLineDigital();
-	public:
-		void measure();
-		int getLinePosition();
-		bool getOnline();
-		byte getMarker();
-		// float line_pos(int *status):
-		// int getPosition(int *status);
-		// char marker_read(void);
+namespace Sensor{
+
+	void measure();
+	int getLinePosition();
+	bool getOnline();
+	byte getMarker();
+	// float line_pos(int *status):
+	// int getPosition(int *status);
+	// char marker_read(void);
 };
 
 
@@ -45,9 +40,6 @@ byte Sensor::getMarker(){
 
 
 
-
-
-Sensor sensor;
 
 
 // ====================================================
