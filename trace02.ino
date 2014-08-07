@@ -40,7 +40,7 @@ Motor motorR;
 Motor motorL;
 
 //センサー
-Sensor sensor();
+Sensor sensor;
 
 //エンコーダー
 volatile unsigned int encoder_R;
@@ -96,15 +96,17 @@ void setup(){
 
 void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
+	
+	//センサによる測定
+	sensor.measure();
+	double in = (double)sensor.getLinePosition();
 
-	int status;
-	// double in = (double)getPosition(&status);
-	double in = 0;
+	//制御量計算
 	int out = (int)pid.Compute(in,LINE_CENTER);
 	
 	//モータ出力
 	int speed_default = 30; //30, 1.1 //40, 1.1 s=0.6
-	if(status){
+	if( sensor.getOnline() ){
 		motorL.write(speed_default - out);
 		motorR.write(speed_default + out);
 		line_lost_time = 0;

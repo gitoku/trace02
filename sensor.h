@@ -14,9 +14,9 @@ class Sensor
 		// byte getMarkerDigital():
 		// byte getLineDigital();
 	public:
-		void getSensor();
+		void measure();
 		int getLinePosition();
-		bool getOnLine();
+		bool getOnline();
 		byte getMarker();
 		// float line_pos(int *status):
 		// int getPosition(int *status);
@@ -26,7 +26,7 @@ class Sensor
 
 
 
-void Sensor::getSensor(){
+void Sensor::measure(){
 
 }
 
@@ -34,7 +34,7 @@ int Sensor::getLinePosition(){
 	return 1;
 }
 
-bool Sensor::getOnLine(){
+bool Sensor::getOnline(){
 	return true;
 }
 
