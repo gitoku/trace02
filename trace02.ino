@@ -76,9 +76,8 @@ void setup(){
 
 void loop()
 { 
-  int dt = getdt_usec(); //get run period(usec)
+  const int dt = 20;	//制御周期
 
-  s_time = micros();
 
   float dCv = 0;
   static int status;
@@ -118,8 +117,8 @@ void loop()
 
 	Serial.println(Cv[0], 6);
 
-	//制御周期20[ms]になるように待つ
-	intervalDelay(20):
+	//制御周期dt[ms]になるように待つ
+	intervalDelay_msec(dt);
 }
 
 

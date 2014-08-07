@@ -31,6 +31,18 @@ void waitUntilClick(){
 }
 
 
-void intervalDelay(){
-	
+void intervalDelay_msec(int period){
+	static unsigned long last_time = 0;
+	unsigned long now_time = millis();
+
+	while( (now_time - last_time) < period ) now_time = millis();
+	last_time = now_time;
+}
+
+void intervalDelay_usec(int period){
+	static unsigned long last_time = 0;
+	unsigned long now_time = micros();
+
+	while( (now_time - last_time) < period ) now_time = micros();
+	last_time = now_time;
 }
