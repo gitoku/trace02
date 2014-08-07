@@ -10,23 +10,29 @@
 #define IRLED_PIN 10
 enum Color {WHITE, BLACK};
 
+#define IRLED_on() digitalWrite(IRLED_PIN, LOW)
+#define IRLED_off() digitalWrite(IRLED_PIN, HIGH)
+
 namespace Sensor {
 	byte line_status;
 	byte marker_status;
 	int line_position;
+	float line_position_analog;
 	int maxChar[5];
 	int minChar[5];
+	Color line_color;
 	
 	void init();
-	void measure(Color line_color);
+	void measure(Color _line_color);
 	int getLinePosition();
 	bool getOnline();
 	byte getMarker();
-	byte getMarkerDigital(Color line_color);
-	byte getLineDigital(Color line_color);
-	void getLineAnalog(int sens_val[]);
+	byte getMarkerDigital();
+	byte getLineDigital();
 	void calcPosition();
+	void getLineAnalog(int sens_val[]);
 	void setCharactoristics(int _maxChar[],int _minChar[]);
+	void calcPositionAnalog();
 };
 
 void Sensor::init(){
@@ -40,9 +46,10 @@ void Sensor::init(){
 	pinMode(A5, INPUT);
 }
 
-void Sensor::measure(Color line_color = WHITE){
-	line_status = getLineDigital(line_color);
-	marker_status = getMarkerDigital(line_color);
+void Sensor::measure(Color _line_color = WHITE){
+	line_color = _line_color;
+	line_status = getLineDigital();
+	marker_status = getMarkerDigital();
 	calcPosition();
 }
 
@@ -60,7 +67,7 @@ byte Sensor::getMarker(){
 }
 
 
-byte Sensor::getMarkerDigital(Color line_color){
+byte Sensor::getMarkerDigital(){
 	byte marker = analogRead(A5);
 	/*
 	よくわかんない
@@ -69,22 +76,15 @@ byte Sensor::getMarkerDigital(Color line_color){
 	if(line_color == BLACK) return (0b11);
 }
 
-byte Sensor::getLineDigital(Color line_color){ 
+byte Sensor::getLineDigital(){ 
+	IRLED_on();
 	if(line_color == WHITE) return ~(PINC) & 0b011111;
 	if(line_color == BLACK) return PINC & 0b011111;
+	IRLED_off();
 }
 
 
-void Sensor::getLineAnalog(int sens_val[]){
-	const int WAIT = 50;
-	digitalWrite(IRLED_PIN, LOW);
-	delay(WAIT);
-	for(int i=0; i<5; i++) sens_val[i] = analogRead(i);
 
-	digitalWrite(IRLED_PIN, HIGH);
-	delay(WAIT); 
-	for(int i=0; i<5; i++) sens_val[i] -= analogRead(i);
-}
 
 void Sensor::calcPosition(){
 	int pos = line_position;
@@ -110,6 +110,28 @@ void Sensor::calcPosition(){
 }
 
 
+
+
+
+
+//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+//↓↓↓↓↓↓↓↓↓↓なんとなく不穏な感じの漂う関数たち↓↓↓↓↓↓↓↓↓↓
+//↓↓↓↓↓↓↓↓↓↓(アナログでセンサ取得したそうです)↓↓↓↓↓↓↓↓↓↓
+//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+
+//各センサをanalogRead
+void Sensor::getLineAnalog(int sens_val[]){
+	const int WAIT = 50;
+	IRLED_on();
+	delay(WAIT);
+	for(int i=0; i<5; i++) sens_val[i] = analogRead(i);
+
+	IRLED_off();
+	delay(WAIT); 
+	for(int i=0; i<5; i++) sens_val[i] -= analogRead(i);
+}
+
+//センサごとの特性(最大最小)をセット
 void Sensor::setCharactoristics(int _maxChar[],int _minChar[]){
 	for(int i=0;i<5;i++){ 
 		maxChar[i] = _maxChar[i];
@@ -117,53 +139,33 @@ void Sensor::setCharactoristics(int _maxChar[],int _minChar[]){
 	}
 }
 
+//注意：マーカによる測定の乱れが考慮されていない
+void Sensor::calcPositionAnalog(){
+	float line_pos = line_position_analog;
+	
+	//センサの値取得->各センサごとに特性を考慮して正規化
+	int sens[5];
+	getLineAnalog(sens);
+	for(int i=0; i<5; i++) sens[i] = map(sens[i],minChar[i],maxChar[i],0,100);
+	
+	//センサごとの係数にて重み付け
+	float sens_sum = 0;
+	float sens_cal = 0;
+	const float sens_coefficient[5] = {1, 11, 21, 31, 41};
+	for(int i=0; i<5; i++){
+		sens_sum += sens[i];
+		sens_cal += sens[i] * sens_coefficient[i];
+	}
+	line_pos = sens_cal / sens_sum;
+	
+	//マーカセンサの情報の加味
+	switch( getMarkerDigital() ){
+		case 0b0010: line_pos = 0.0; break;
+		case 0b0100: line_pos = 40.0; break;
+	}
 
-// ====================================================
-
- 
-
-
-
-// float line_pos(int *status){
-// 	const int sens_coefficient[5] = {1, 11, 21, 31, 41};
-// 	float sensor_value_0[5];
-// 	float sensor_value_1[5];
-// 	float line_pos = last_pos;
-// 	static float last_pos = 0.0;
-
-// 	getLineAnalog();
-// 	for(int i=0; i<5; i++){
-// 		sensor_value_0[i] = sens_val[i] - black[i];
-// 		sensor_value_0[i] = constrain(sensor_value_0[i], 1, sens_ent_diff[i]);
-// 		sensor_value_1[i] = sensor_value_0[i]/sens_ent_diff[i];
-// 	}
-// 	float sens_sum = 0;
-// 	float sens_cal = 0;
-
-// 	for(int i=0; i<5; i++){
-// 		sens_sum += sensor_value_1[i];
-// 		sens_cal += sensor_value_1[i] * sens_coefficient[i];
-// 	}
-// 	line_pos = sens_cal / sens_sum;
-
-// 	byte markerInfo;
-// 	markerInfo = getMarkerDigital();
-
-// 	*status = 1;
-// 	switch(markerInfo){
-// 		case 0b0110: line_pos = last_pos; break;
-// 		case 0b0010: line_pos = 0.0; break;
-// 		case 0b0100: line_pos = 40.0; break;
-// 		case 0b0000: 
-// 			if(sens_sum < 0.5){ 
-// 				line_pos = last_pos; 
-// 				*status = 0;
-// 			} 
-// 			break;
-// 		default: last_pos = line_pos; 
-// 	}
-// 	return line_pos;
-// }
+	line_position_analog = line_pos;
+}
 
 
 
