@@ -12,12 +12,16 @@
 PID pid(Kp,Ki,Kd, DIRECT);
 
 
-//モータ
-Motor motorL(MOTOR_R_PWM_PIN,30);
-Motor motorR(MOTOR_L_PWM_PIN,30);
+//モータ(max duty = 30)
+Motor motorR(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
+Motor motorL(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
 
 
 //エンコーダー
+#define ENCODER_R_PIN 2
+#define ENCODER_L_PIN 3
+#define ENCODER_R_INT 0
+#define ENCODER_L_INT 1
 unsigned int encoder_R = 0;
 unsigned int encoder_L = 0;
 void inc_pos_L(){
@@ -28,27 +32,21 @@ void inc_pos_R(){
 }
 
 
+#define BUZZER_PIN 8
+
 
 void setup(){
 	Serial.begin(9600);
 
-	pinMode(2, INPUT);
-	pinMode(3, INPUT);
-	pinMode(4, OUTPUT);
-	pinMode(7, OUTPUT);
-	pinMode(8, OUTPUT);
-	pinMode(10, OUTPUT);
-	pinMode(12, INPUT);
-	pinMode(13, OUTPUT);
-	pinMode(A0, INPUT);
-	pinMode(A1, INPUT);
-	pinMode(A2, INPUT);
-	pinMode(A3, INPUT);
-	pinMode(A4, INPUT);
-	pinMode(A5, INPUT);
+	pinMode(BUZZER_PIN, OUTPUT);
+	pinMode(SW_PIN, INPUT);
+	pinMode(LED_PIN, OUTPUT);
+	digitalWrite(LED_PIN, LOW);
 
-	attachInterrupt(0, inc_pos_R, CHANGE);
-	attachInterrupt(1, inc_pos_L, CHANGE);
+	pinMode(ENCODER_R_PIN, INPUT);
+	pinMode(ENCODER_L_PIN, INPUT);
+	attachInterrupt(ENCODER_R_INT, inc_pos_R, CHANGE);
+	attachInterrupt(ENCODER_L_INT, inc_pos_L, CHANGE);
 
 	pid.SetSampleTime(dt_msec);
 	pid.SetMode(AUTOMATIC);

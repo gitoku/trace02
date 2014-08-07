@@ -9,6 +9,19 @@ int sens_ent_diff[5];
 int sens_ent_line[5] = {0, 0, 0, 0, 0};
 int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
+#define IRLED_PIN 10
+
+void sensor_init(){
+
+  pinMode(IRLED_PIN, OUTPUT);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  pinMode(A2, INPUT);
+  pinMode(A3, INPUT);
+  pinMode(A4, INPUT);
+  pinMode(A5, INPUT);
+}
+
 //センサー初期化
 //キャリブレーション
   //白上でボタン押す
