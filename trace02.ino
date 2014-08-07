@@ -1,5 +1,6 @@
 #include "motor.h"
 #include "tips.h"
+//#include <MsTimer2.h>
 
 #define line_center 15.0
 #define lost_line_time 200
@@ -19,38 +20,15 @@ Motor motorL(MOTOR_R_PWM_PIN,30);
 Motor motorR(MOTOR_L_PWM_PIN,30);
 
 
-//#include <MsTimer2.h>
-
- int sens_val[5];
- int sens_ent_diff[5];
- int sens_ent_line[5] = {0, 0, 0, 0, 0};
- int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
 
-//ピンの初期化
-void init_pins()
-{
-  pinMode(2, INPUT);
-  pinMode(3, INPUT);
-  pinMode(4, OUTPUT);
-  pinMode(7, OUTPUT);
-  pinMode(8, OUTPUT);
-  pinMode(10, OUTPUT);
-  pinMode(12, INPUT);
-  pinMode(13, OUTPUT);
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
-  pinMode(A2, INPUT);
-  pinMode(A3, INPUT);
-  pinMode(A4, INPUT);
-  pinMode(A5, INPUT);
-  
-  attachInterrupt(0, inc_pos_R, CHANGE);
-  attachInterrupt(1, inc_pos_L, CHANGE);
-  
-  //MsTimer2::set(10, measureSpeed); // 10ms period
-  //MsTimer2::start();
-}
+int sens_val[5];
+int sens_ent_diff[5];
+int sens_ent_line[5] = {0, 0, 0, 0, 0};
+int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
+
+
+
 
 void inc_pos_L(){
 
@@ -60,24 +38,39 @@ void inc_pos_R(){
 
 }
 
+void setup(){
+	Serial.begin(9600);
 
+	pinMode(2, INPUT);
+	pinMode(3, INPUT);
+	pinMode(4, OUTPUT);
+	pinMode(7, OUTPUT);
+	pinMode(8, OUTPUT);
+	pinMode(10, OUTPUT);
+	pinMode(12, INPUT);
+	pinMode(13, OUTPUT);
+	pinMode(A0, INPUT);
+	pinMode(A1, INPUT);
+	pinMode(A2, INPUT);
+	pinMode(A3, INPUT);
+	pinMode(A4, INPUT);
+	pinMode(A5, INPUT);
 
+	attachInterrupt(0, inc_pos_R, CHANGE);
+	attachInterrupt(1, inc_pos_L, CHANGE);
 
-void setup()
-{
-  Serial.begin(9600);
-  init_pins();
+	tone(8, 1000, 100);
+	delay(100);
+	tone(8, 1500, 100);
+	delay(100);
+	noTone(8);
 
-  tone(8, 1000, 100);
-  delay(100);
-  tone(8, 1500, 100);
-  delay(100);
-  noTone(8);
+	Serial.println("Ready");
+	waitUntilClick();
+	digitalWrite(LED_PIN, LOW);
 
-  Serial.println("Ready");
-  waitUntilClick();
-  digitalWrite(13, LOW);
-  
+	//MsTimer2::set(10, measureSpeed); // 10ms period
+	//MsTimer2::start();
 }
 
 
@@ -86,7 +79,7 @@ void loop()
   int dt = getdt_usec(); //get run period(usec)
 
   s_time = micros();
-//  t_count_1 = s_time;
+
   float dCv = 0;
   static int status;
     
@@ -102,38 +95,32 @@ void loop()
   Cv[1] = Cv[0];
   Cv[0] = Cv[1] + dCv;
   
-	//積分処理っぽい
+	//ラインをロストした時間を得る
 	if(status)	lost_count = 0;
-	else if(lost_count < lost_line_time) lost_count++;
+	else lost_count++;
+	
+	
+	if(lost_count >= lost_line_time){
+		motorL.stop();
+		motorR.stop();
+		waitUntilClick();
+	}
+
+	if(Cv[0] > 0){
+		motorL.write(speed_default - (int)Cv[0]);
+		motorR.write(speed_default);
+	}
+	else{
+		motorL.write(speed_default);
+		motorR.write(speed_default - (int)Cv[0]);
+	}
 
 
-  
-  if(lost_count >= lost_line_time)
-  {
-   motorL.stop();
-   motorR.stop();
-   waitUntilClick();
-  }
-  else{
-    if(Cv[0] > 0)
-    {
-     motorL.write(speed_default - (int)Cv[0]);
-     motorR.write(speed_default);
-    }
-    else
-    {
+	Serial.println(Cv[0], 6);
 
-     motorL.write(speed_default);
-     motorR.write(speed_default - (int)Cv[0]);
-    }
-  }
- 
-  Serial.print(Cv[0], 6);
-  Serial.print("\t");
-  Serial.println(lost_count);
-
-  e_time = micros();
-  int t_delay = max(0, dt *1000000 +s_time -e_time);
-  delayMicroseconds(t_delay);
+	//制御周期20[ms]になるように待つ
+	intervalDelay(20):
 }
+
+
 

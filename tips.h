@@ -29,3 +29,8 @@ void waitUntilClick(){
 	}
 	while(digitalRead(SW_PIN));
 }
+
+
+void intervalDelay(){
+	
+}
