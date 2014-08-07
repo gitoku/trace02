@@ -2,6 +2,21 @@
 #include "tips.h"
 #include "PID.h"
 
+//ピン番号
+#define ENCODER_R_INT 0
+#define ENCODER_L_INT 1
+#define ENCODER_R_PIN 2
+#define ENCODER_L_PIN 3
+#define MOTOR_R_FREE_PIN 4
+#define MOTOR_R_PWM_PIN 5
+#define MOTOR_L_PWM_PIN 6
+#define MOTOR_L_FREE_PIN 7
+#define BUZZER_PIN 8
+#define LANCER_PIN 9
+#define IRLED_PIN 10
+#define EXTRA_PIN 11	//?
+#define SW_PIN 12
+#define LED_PIN 13
 
 //PID制御関係
 #define dt_msec  20	//制御周期
@@ -17,26 +32,9 @@ Motor motorL(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
 //エンコーダー
 volatile unsigned int encoder_R;
 volatile unsigned int encoder_L;
-void inc_pos_L(){
-	encoder_L++;
-}
-void inc_pos_R(){
-	encoder_R++;
-}
+void inc_pos_L(){ encoder_L++; }
+void inc_pos_R(){ encoder_R++; }
 
-//ピン番号
-#define ENCODER_R_PIN 2
-#define ENCODER_L_PIN 3
-#define ENCODER_R_INT 0
-#define ENCODER_L_INT 1
-#define MOTOR_R_PWM_PIN 5
-#define MOTOR_R_FREE_PIN 4
-#define MOTOR_L_PWM_PIN 6
-#define MOTOR_L_FREE_PIN 7
-#define BUZZER_PIN 8
-#define SW_PIN 12
-#define LED_PIN 13
-#define IRLED_PIN 10
 
 void setup(){
 	//LEDスイッチ
