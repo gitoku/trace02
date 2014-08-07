@@ -91,6 +91,9 @@ void setup(){
 	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
 	motorR.setMode(ON_BRAKE);
 	motorL.setMode(ON_BRAKE);
+
+	//センサーのキャリブレーション
+	// calibration();
 }
 
 
@@ -161,4 +164,32 @@ void intervalDelay_msec(int period){
 
 	while( (now_time - last_time) < period ) now_time = millis();
 	last_time = now_time;
+}
+
+
+
+void calibration(){
+	int maximum[5];
+	int minimum[5];
+	Sensor::getLineAnalog(maximum);
+	Sensor::getLineAnalog(minimum);
+	
+	while(!digitalRead(SW_PIN)){
+		int sens_val[5];
+		Sensor::getLineAnalog(sens_val);
+		for(int n=0; n<5; n++){
+			minimum[n] = min(minimum[n], sens_val[n]);
+			maximum[n] = max(maximum[n], sens_val[n]);
+		} 
+		tone(8, 2000, 30);
+		delay(60);
+	}
+
+	int threshold[5];
+	for(int i=0; i<5; i++) threshold[i] =  (maximum[i] + minimum[i])/2;
+
+	Sensor::setThreshold(threshold);
+
+	tone(8, 2000, 100);
+	waitUntilClick();
 }

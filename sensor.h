@@ -14,6 +14,7 @@ namespace Sensor {
 	byte line_status;
 	byte marker_status;
 	int line_position;
+	int threshold[5];
 	
 	void init();
 	void measure(Color line_color);
@@ -22,12 +23,14 @@ namespace Sensor {
 	byte getMarker();
 	byte getMarkerDigital(Color line_color);
 	byte getLineDigital(Color line_color);
+	void getLineAnalog(int sens_val[]);
 	void calcPosition();
+	void setThreshold(int* _threshold);
 };
 
 void Sensor::init(){
 	pinMode(IRLED_PIN, OUTPUT);
-	digitalWrite(IRLED_PIN, HIGH);	//ONのつもり
+	digitalWrite(IRLED_PIN, LOW);	//ONのつもり
 	pinMode(A0, INPUT);
 	pinMode(A1, INPUT);
 	pinMode(A2, INPUT);
@@ -70,6 +73,18 @@ byte Sensor::getLineDigital(Color line_color){
 	if(line_color == BLACK) return PINC & 0b011111;
 }
 
+
+void Sensor::getLineAnalog(int sens_val[]){
+	const int WAIT = 50;
+	digitalWrite(IRLED_PIN, LOW);
+	delay(WAIT);
+	for(int i=0; i<5; i++) sens_val[i] = analogRead(i);
+
+	digitalWrite(IRLED_PIN, HIGH);
+	delay(WAIT); 
+	for(int i=0; i<5; i++) sens_val[i] -= analogRead(i);
+}
+
 void Sensor::calcPosition(){
 	int pos = line_position;
 
@@ -94,98 +109,19 @@ void Sensor::calcPosition(){
 }
 
 
-
-
+void Sensor::setThreshold(int _threshold[]){
+	for(int i=0;i<5;i++) threshold[i] = _threshold[i];
+}
 
 
 // ====================================================
-// unsigned long t_count = 0;
 
-// unsigned int markerInfo = 0;
-// const int sens_coefficient[5] = {1, 11, 21, 31, 41}; 
-
-
-// int sens_val[5];
-// int sens_ent_diff[5];
-// int sens_ent_line[5] = {0, 0, 0, 0, 0};
-// int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
+ 
 
 
 
-
-
-// //センサー初期化
-// //キャリブレーション
-//   //白上でボタン押す
-//   //黒上でボタン押す
-// void init_sensor()
-// {
-//   waitUntilClick();
-//   digitalWrite(13, HIGH);
-  
-//   for(int i=0; i<100; i++)
-//   {
-//     for(int n=0; n<5; n++)
-//     {
-//       getLineAnalog();
-//       if(sens_ent_line[n] < sens_val[n])
-//       {
-//         sens_ent_line[n] = sens_val[n];
-//       }
-//     }
-//   }
-//   tone(8, 2300, 100);
-//   digitalWrite(13, LOW);
-  
-//   waitUntilClick();
-//   digitalWrite(13, HIGH);
-  
-//   for(int i=0; i<100; i++)
-//   {
-//     for(int n=0; n<5; n++)
-//     {
-//       getLineAnalog();
-//       if(sens_ent_none[n] > sens_val[n])
-//       {
-//         sens_ent_none[n] = sens_val[n];
-//       }
-//     }
-//   }
-  
-//   tone(8, 2000, 100);
-//   digitalWrite(13, LOW);
-  
-//   for(int i=0; i<5; i++)
-//   {
-//     sens_ent_diff[i] =  sens_ent_line[i] - sens_ent_none[i];
-//   }
-//   waitUntilClick();
-//   digitalWrite(13, LOW);
-// }
-
-
-// void getLineAnalog()
-// {
-  
-//   digitalWrite(10, LOW);
-//   delay(500);
-//   for(int i=0; i<5; i++)
-//   {
-//     sens_val[i] = analogRead(i);
-//   }
-  
-//   digitalWrite(10, HIGH);
-//   delay(500); 
-//   for(int i=0; i<5; i++)
-//   {
-//     sens_val[i] -= analogRead(i);
-//   }
-// }
-
-
-
-// float line_pos(int *status)
-// {
+// float line_pos(int *status){
+// const int sens_coefficient[5] = {1, 11, 21, 31, 41};
 //   float sensor_value_0[5];
 //   float sensor_value_1[5];
 //   float line_pos = 0.0;
@@ -194,7 +130,7 @@ void Sensor::calcPosition(){
 //   getLineAnalog();
 //   for(int i=0; i<5; i++)
 //   {
-//     sensor_value_0[i] = sens_val[i] - sens_ent_none[i];
+//     sensor_value_0[i] = sens_val[i] - black[i];
 //     sensor_value_0[i] = constrain(sensor_value_0[i], 1, sens_ent_diff[i]);
 //     sensor_value_1[i] = sensor_value_0[i]/sens_ent_diff[i];
 //   }
