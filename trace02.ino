@@ -91,13 +91,11 @@ void loop(){
 
 	int status;
 	double in = (double)getPosition(&status);
-	
-	double out;
-	pid.Compute(in,&out,line_center);
+	int out = (int)pid.Compute(in,line_center);
 
 	if(status){
-		motorL.write(speed_default - (int)out);
-		motorR.write(speed_default + (int)out);
+		motorL.write(speed_default - out);
+		motorR.write(speed_default + out);
 		lost_count = 0;
 	}
 	else lost_count++;	//ラインをロストした時間を得る

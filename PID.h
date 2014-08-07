@@ -19,7 +19,7 @@ class PID
 	
     void SetMode(int Mode);               // * sets PID to either Manual (0) or Auto (non-0)
 
-    bool Compute(double,double*,double);                       // * performs the PID calculation.  it should be
+    double Compute(double,double);                       // * performs the PID calculation.  it should be
                                           //   called every time loop() cycles. ON/OFF and
                                           //   calculation frequency can be set using SetMode
                                           //   SetSampleTime respectively
@@ -64,7 +64,7 @@ class PID
 	int controllerDirection;
 
     double *myInput;              // * Pointers to the Input, Output, and Setpoint variables
-    double *myOutput;             //   This creates a hard link between the variables and the 
+    double output;             //   This creates a hard link between the variables and the 
     double *mySetpoint;           //   PID, freeing the user from having to constantly tell us
                                   //   what these values are.  with pointers we'll just know.
 			  

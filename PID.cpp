@@ -41,9 +41,8 @@ PID::PID(double Kp, double Ki, double Kd, int ControllerDirection)
  *   pid Output needs to be computed.  returns true when the output is computed,
  *   false when nothing has been done.
  **********************************************************************************/ 
-bool PID::Compute(double _Input, double* _Output,double _Setpoint)
+double PID::Compute(double _Input,double _Setpoint)
 {
-    myOutput = _Output;
     *myInput = _Input;
     *mySetpoint = _Setpoint;
     
@@ -61,18 +60,17 @@ bool PID::Compute(double _Input, double* _Output,double _Setpoint)
       double dInput = (input - lastInput);
  
       /*Compute PID Output*/
-      double output = kp * error + ITerm- kd * dInput;
+      output = kp * error + ITerm- kd * dInput;
       
 	  if(output > outMax) output = outMax;
       else if(output < outMin) output = outMin;
-	  *myOutput = output;
 	  
       /*Remember some variables for next time*/
       lastInput = input;
       lastTime = now;
-	  return true;
+	  return output;
    }
-   else return false;
+   else return output;
 }
 
 
@@ -131,8 +129,8 @@ void PID::SetOutputLimits(double Min, double Max)
  
    if(inAuto)
    {
-	   if(*myOutput > outMax) *myOutput = outMax;
-	   else if(*myOutput < outMin) *myOutput = outMin;
+	   if(output > outMax) output = outMax;
+	   else if(output < outMin) output = outMin;
 	 
 	   if(ITerm > outMax) ITerm= outMax;
 	   else if(ITerm < outMin) ITerm= outMin;
@@ -160,7 +158,7 @@ void PID::SetMode(int Mode)
  ******************************************************************************/ 
 void PID::Initialize()
 {
-   ITerm = *myOutput;
+   ITerm = output;
    lastInput = *myInput;
    if(ITerm > outMax) ITerm = outMax;
    else if(ITerm < outMin) ITerm = outMin;
