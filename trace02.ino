@@ -29,9 +29,9 @@ int sens_ent_diff[5];
 int sens_ent_line[5] = {0, 0, 0, 0, 0};
 int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
-#define dt_msec = 20;	//制御周期
-#define inv_dt = 1000/dt_msec;
-#define lost_line_time = 200 / dt_msec;
+#define dt_msec  20	//制御周期
+#define inv_dt  (1000/dt_msec)
+#define lost_line_time  (200 / dt_msec)
 
 
 void inc_pos_L(){
@@ -85,6 +85,7 @@ void loop(){
 	int status;
 	double in = (double)getPosition(&status);
 	double out;
+	static int lost_count = 0;
 
 	pid.Compute(in,&out,0);
 
