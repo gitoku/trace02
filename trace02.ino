@@ -1,5 +1,6 @@
 #include "motor.h"
 #include "tips.h"
+#include "PID.h"
 //#include <MsTimer2.h>
 
 #define line_center 15.0
@@ -20,7 +21,7 @@ float Cv[2] = {0.0, 0.0};
 Motor motorL(MOTOR_R_PWM_PIN,30);
 Motor motorR(MOTOR_L_PWM_PIN,30);
 
-
+PID pid(Kp,Ki,Kd, DIRECT);
 
 
 int sens_val[5];
@@ -28,7 +29,9 @@ int sens_ent_diff[5];
 int sens_ent_line[5] = {0, 0, 0, 0, 0};
 int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
-
+#define dt_msec = 20;	//制御周期
+#define inv_dt = 1000/dt_msec;
+#define lost_line_time = 200 / dt_msec;
 
 
 void inc_pos_L(){
@@ -66,6 +69,9 @@ void setup(){
 	delay(100);
 	noTone(8);
 
+	pid.SetSampleTime(dt_msec);
+	pid.SetMode(AUTOMATIC);
+
 	Serial.println("Ready");
 	waitUntilClick();
 	digitalWrite(LED_PIN, LOW);
@@ -76,9 +82,7 @@ void setup(){
 
 
 void loop(){
-	const int dt_msec = 20;	//制御周期
-	const int inv_dt = 1000/dt_msec;
-	const int lost_line_time = 200 / dt_msec;
+
 
 	static unsigned int lost_count = 0;
 	static int last_in = 0;
