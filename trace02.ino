@@ -26,7 +26,7 @@
 #define SENSOR_ARRAY_PIN A5
 
 
-//PID制御関係
+//PID制御
 #define DT  20	//制御周期
 #define Kp 1.0
 #define Ki 1.0
@@ -47,6 +47,10 @@ void inc_pos_R(){ encoder_R++; }
 
 
 void setup(){
+	//シリアル通信(デバッグ用)
+	Serial.begin(115200);
+	Serial.println("Ready");
+
 	//LEDスイッチ
 	pinMode(SW_PIN, INPUT);
 	pinMode(LED_PIN, OUTPUT);
@@ -70,10 +74,6 @@ void setup(){
 	tone(BUZZER_PIN, 1500, 100);
 	delay(100);
 	noTone(BUZZER_PIN);
-	
-	//シリアル通信(デバッグ用)
-	Serial.begin(9600);
-	Serial.println("Ready");
 	
 	//スイッチがクリックされるまで待つ
 	waitUntilClick();
@@ -112,6 +112,11 @@ void loop(){
 		motorR.brake();
 		waitUntilClick();
 	}
+	
+	//デバッグ用
+	Serial.print(in);
+	Serial.print("\t");
+	Serial.println(out);
 
 	//制御周期DT[ms]になるように待つ
 	intervalDelay_msec(DT);
