@@ -14,7 +14,8 @@ namespace Sensor {
 	byte line_status;
 	byte marker_status;
 	int line_position;
-	int threshold[5];
+	int maxChar[5];
+	int minChar[5];
 	
 	void init();
 	void measure(Color line_color);
@@ -25,7 +26,7 @@ namespace Sensor {
 	byte getLineDigital(Color line_color);
 	void getLineAnalog(int sens_val[]);
 	void calcPosition();
-	void setThreshold(int* _threshold);
+	void setCharactoristics(int _maxChar[],int _minChar[]);
 };
 
 void Sensor::init(){
@@ -109,8 +110,11 @@ void Sensor::calcPosition(){
 }
 
 
-void Sensor::setThreshold(int _threshold[]){
-	for(int i=0;i<5;i++) threshold[i] = _threshold[i];
+void Sensor::setCharactoristics(int _maxChar[],int _minChar[]){
+	for(int i=0;i<5;i++){ 
+		maxChar[i] = _maxChar[i];
+		minChar[i] = _minChar[i];
+	}
 }
 
 
@@ -121,42 +125,44 @@ void Sensor::setThreshold(int _threshold[]){
 
 
 // float line_pos(int *status){
-// const int sens_coefficient[5] = {1, 11, 21, 31, 41};
-//   float sensor_value_0[5];
-//   float sensor_value_1[5];
-//   float line_pos = 0.0;
-//   static float last_pos = 0.0;
-  
-//   getLineAnalog();
-//   for(int i=0; i<5; i++)
-//   {
-//     sensor_value_0[i] = sens_val[i] - black[i];
-//     sensor_value_0[i] = constrain(sensor_value_0[i], 1, sens_ent_diff[i]);
-//     sensor_value_1[i] = sensor_value_0[i]/sens_ent_diff[i];
-//   }
-//   float sens_sum = 0;
-//   float sens_cal = 0;
-  
-//   for(int i=0; i<5; i++)
-//   {
-//     sens_sum += sensor_value_1[i];
-//     sens_cal += sensor_value_1[i] * sens_coefficient[i];
-//   }
-//   line_pos = sens_cal / sens_sum;
-  
-//   byte markerInfo;
-//   markerInfo = getMarkerDigital();
-  
-//    *status = 1;
-//   switch(markerInfo){
-//    case 0b0110: line_pos = last_pos; break;
-//    case 0b0010: line_pos = 0.0; break;
-//    case 0b0100: line_pos = 40.0; break;
-//    case 0b0000: if(sens_sum < 0.5) 
-//                 { line_pos = last_pos; *status = 0;} break;
-//    default: last_pos = line_pos; 
-//   }
-//   return line_pos;
+// 	const int sens_coefficient[5] = {1, 11, 21, 31, 41};
+// 	float sensor_value_0[5];
+// 	float sensor_value_1[5];
+// 	float line_pos = last_pos;
+// 	static float last_pos = 0.0;
+
+// 	getLineAnalog();
+// 	for(int i=0; i<5; i++){
+// 		sensor_value_0[i] = sens_val[i] - black[i];
+// 		sensor_value_0[i] = constrain(sensor_value_0[i], 1, sens_ent_diff[i]);
+// 		sensor_value_1[i] = sensor_value_0[i]/sens_ent_diff[i];
+// 	}
+// 	float sens_sum = 0;
+// 	float sens_cal = 0;
+
+// 	for(int i=0; i<5; i++){
+// 		sens_sum += sensor_value_1[i];
+// 		sens_cal += sensor_value_1[i] * sens_coefficient[i];
+// 	}
+// 	line_pos = sens_cal / sens_sum;
+
+// 	byte markerInfo;
+// 	markerInfo = getMarkerDigital();
+
+// 	*status = 1;
+// 	switch(markerInfo){
+// 		case 0b0110: line_pos = last_pos; break;
+// 		case 0b0010: line_pos = 0.0; break;
+// 		case 0b0100: line_pos = 40.0; break;
+// 		case 0b0000: 
+// 			if(sens_sum < 0.5){ 
+// 				line_pos = last_pos; 
+// 				*status = 0;
+// 			} 
+// 			break;
+// 		default: last_pos = line_pos; 
+// 	}
+// 	return line_pos;
 // }
 
 

@@ -106,10 +106,10 @@ void loop(){
 	
 	//センサによる測定
 	Sensor::measure();
-	double in = (double)Sensor::getLinePosition();
+	int in = Sensor::getLinePosition();
 
 	//制御量計算
-	int out = (int)pid.Compute(in,LINE_CENTER);
+	int out = (int)pid.Compute((double)in,LINE_CENTER);
 	
 	//モータ出力
 	int speed_default = 30; //30, 1.1 //40, 1.1 s=0.6
@@ -184,11 +184,9 @@ void calibration(){
 		tone(8, 2000, 30);
 		delay(60);
 	}
+	while(digitalRead(SW_PIN));
 
-	int threshold[5];
-	for(int i=0; i<5; i++) threshold[i] =  (maximum[i] + minimum[i])/2;
-
-	Sensor::setThreshold(threshold);
+	Sensor::setCharactoristics(maximum,minimum);
 
 	tone(8, 2000, 100);
 	waitUntilClick();
