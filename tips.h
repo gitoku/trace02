@@ -19,8 +19,7 @@ unsigned long getdt_usec(){
 	return (int)max(dt,DT_MIN);
 }
 
-#define SW_PIN 12
-#define LED_PIN 13
+
 
 //スイッチが押されるまでLED点滅させて待つ
 void waitUntilClick(){
@@ -30,6 +29,7 @@ void waitUntilClick(){
 		digitalWrite(LED_PIN, (millis()%BLINK_INTERVAL)<(BLINK_INTERVAL/2) );
 	}
 	while(digitalRead(SW_PIN));
+	digitalWrite(LED_PIN, LOW);
 }
 
 

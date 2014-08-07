@@ -9,7 +9,7 @@ int sens_ent_diff[5];
 int sens_ent_line[5] = {0, 0, 0, 0, 0};
 int sens_ent_none[5] = {1023, 1023, 1023, 1023, 1023};
 
-#define IRLED_PIN 10
+
 
 void sensor_init(){
 

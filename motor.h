@@ -8,10 +8,7 @@
 #endif
 
 
-#define MOTOR_R_PWM_PIN 5
-#define MOTOR_R_FREE_PIN 4
-#define MOTOR_L_PWM_PIN 6
-#define MOTOR_L_FREE_PIN 7
+
 #define PWM_DUTY_MAX 255	//8bit
 #define PWM_DUTY_MIN 0
 

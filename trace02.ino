@@ -1,7 +1,6 @@
 #include "motor.h"
 #include "tips.h"
 #include "PID.h"
-//#include <MsTimer2.h>
 
 
 //PID制御関係
@@ -11,19 +10,13 @@
 #define Kd 1.0
 PID pid(Kp,Ki,Kd, DIRECT);
 
-
 //モータ(max duty = 30)
 Motor motorR(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN, 30);
 Motor motorL(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN, 30);
 
-
 //エンコーダー
-#define ENCODER_R_PIN 2
-#define ENCODER_L_PIN 3
-#define ENCODER_R_INT 0
-#define ENCODER_L_INT 1
-unsigned int encoder_R = 0;
-unsigned int encoder_L = 0;
+volatile unsigned int encoder_R;
+volatile unsigned int encoder_L;
 void inc_pos_L(){
 	encoder_L++;
 }
@@ -31,38 +24,52 @@ void inc_pos_R(){
 	encoder_R++;
 }
 
-
+//ピン番号
+#define ENCODER_R_PIN 2
+#define ENCODER_L_PIN 3
+#define ENCODER_R_INT 0
+#define ENCODER_L_INT 1
+#define MOTOR_R_PWM_PIN 5
+#define MOTOR_R_FREE_PIN 4
+#define MOTOR_L_PWM_PIN 6
+#define MOTOR_L_FREE_PIN 7
 #define BUZZER_PIN 8
-
+#define SW_PIN 12
+#define LED_PIN 13
+#define IRLED_PIN 10
 
 void setup(){
-	Serial.begin(9600);
-
-	pinMode(BUZZER_PIN, OUTPUT);
+	//LEDスイッチ
 	pinMode(SW_PIN, INPUT);
 	pinMode(LED_PIN, OUTPUT);
 	digitalWrite(LED_PIN, LOW);
-
+	
+	//エンコーダー
 	pinMode(ENCODER_R_PIN, INPUT);
 	pinMode(ENCODER_L_PIN, INPUT);
 	attachInterrupt(ENCODER_R_INT, inc_pos_R, CHANGE);
 	attachInterrupt(ENCODER_L_INT, inc_pos_L, CHANGE);
-
+	encoder_R = 0;
+	encoder_L = 0;
+	
+	//PID制御
 	pid.SetSampleTime(dt_msec);
 	pid.SetMode(AUTOMATIC);
 
-	tone(8, 1000, 100);
+	//起動音
+	tone(BUZZER_PIN, 1000, 100);
 	delay(100);
-	tone(8, 1500, 100);
+	tone(BUZZER_PIN, 1500, 100);
 	delay(100);
-	noTone(8);
-
+	noTone(BUZZER_PIN);
+	
+	//シリアル通信(デバッグ用)
+	Serial.begin(9600);
 	Serial.println("Ready");
+	
+	//スイッチがクリックされるまで待つ
 	waitUntilClick();
-	digitalWrite(LED_PIN, LOW);
-
-	//MsTimer2::set(10, measureSpeed); // 10ms period
-	//MsTimer2::start();
+	delay(500);
 }
 
 
