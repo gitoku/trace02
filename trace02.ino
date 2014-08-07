@@ -40,6 +40,8 @@ Motor motorL;
 
 //槍
 #define LANCER_CENTER 90
+#define LANCER_RIGHT (90+30)
+#define LANCER_LEFT (90-30)
 Servo lancer;
 
 //エンコーダー
@@ -100,8 +102,8 @@ void setup(){
 
 
 
-#define LINE_CENTER 0
-#define SAFETY_TIMELIMIT 200	//[msec]
+#define LINE_CENTER 0	//当たり前に思うかもしれないけど、アナログだと違うみたい
+#define SAFETY_STOP_TIMELIMIT 200	//[msec]
 
 void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
@@ -123,14 +125,13 @@ void loop(){
 	else line_lost_time += DT;	//センサを見失った
 	
 	//ランサー制御
-	byte state = Sensor::getMarker();
-	switch(state){
-		case 0b00: lancer.write(LANCER_CENTER); break;
-		// ....
+	switch( Sensor::getMarkerFlag() ){
+		case RIGHT: lancer.write(LANCER_RIGHT); break;
+		case LEFT: lancer.write(LANCER_LEFT); break;
 	}
 	
 	//ラインロストから一定時間立っていれば緊急停止
-	if( line_lost_time > SAFETY_TIMELIMIT ){
+	if( line_lost_time > SAFETY_STOP_TIMELIMIT ){
 		motorL.brake();
 		motorR.brake();
 		waitUntilClick();

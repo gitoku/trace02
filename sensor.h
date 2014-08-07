@@ -8,28 +8,34 @@
 #endif
 
 #define IRLED_PIN 10
-enum Color {WHITE, BLACK};
-
 #define IRLED_on() digitalWrite(IRLED_PIN, LOW)
 #define IRLED_off() digitalWrite(IRLED_PIN, HIGH)
+enum Color {WHITE, BLACK};
+enum Flag{NONE=0,RIGHT,LEFT,BOTH};
 
 namespace Sensor {
 	byte line_status;
 	byte marker_status;
 	int line_position;
 	float line_position_analog;
+	Color line_color;
+	Flag flag = NONE;
+
 	int maxChar[5];
 	int minChar[5];
-	Color line_color;
 	
 	void init();
 	void measure(Color _line_color);
-	int getLinePosition();
-	bool getOnline();
-	byte getMarker();
-	byte getMarkerDigital();
+	
 	byte getLineDigital();
 	void calcPosition();
+	int getLinePosition();
+	bool getOnline();
+
+	byte getMarkerDigital();
+	void calcMarkerFlag();
+	Flag getMarkerFlag();
+
 	void getLineAnalog(int sens_val[]);
 	void setCharactoristics(int _maxChar[],int _minChar[]);
 	void calcPositionAnalog();
@@ -37,7 +43,6 @@ namespace Sensor {
 
 void Sensor::init(){
 	pinMode(IRLED_PIN, OUTPUT);
-	digitalWrite(IRLED_PIN, LOW);	//ONのつもり
 	pinMode(A0, INPUT);
 	pinMode(A1, INPUT);
 	pinMode(A2, INPUT);
@@ -51,6 +56,7 @@ void Sensor::measure(Color _line_color = WHITE){
 	line_status = getLineDigital();
 	marker_status = getMarkerDigital();
 	calcPosition();
+	calcMarkerFlag();
 }
 
 int Sensor::getLinePosition(){
@@ -60,10 +66,6 @@ int Sensor::getLinePosition(){
 bool Sensor::getOnline(){
 	if(line_status == 0b00000) return false;
 	return true;
-}
-
-byte Sensor::getMarker(){
-	return marker_status;
 }
 
 
@@ -82,8 +84,6 @@ byte Sensor::getLineDigital(){
 	if(line_color == BLACK) return PINC & 0b011111;
 	IRLED_off();
 }
-
-
 
 
 void Sensor::calcPosition(){
@@ -110,13 +110,21 @@ void Sensor::calcPosition(){
 }
 
 
+void Sensor::calcMarkerFlag(){
+  if(marker_status & 0b0001) flag = RIGHT;
+  if(marker_status & 0b1000) flag = LEFT;
+  if(marker_status & 0b1001) flag = BOTH;
+}
 
+Flag Sensor::getMarkerFlag(){
+  return flag;
+}
 
 
 
 //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 //↓↓↓↓↓↓↓↓↓↓なんとなく不穏な感じの漂う関数たち↓↓↓↓↓↓↓↓↓↓
-//↓↓↓↓↓↓↓↓↓↓(アナログでセンサ取得したそうです)↓↓↓↓↓↓↓↓↓↓
+//↓↓↓↓↓↓↓↓↓(アナログでセンサ取得したいようです)↓↓↓↓↓↓↓↓↓
 //↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 
 //各センサをanalogRead
@@ -148,6 +156,10 @@ void Sensor::calcPositionAnalog(){
 	getLineAnalog(sens);
 	for(int i=0; i<5; i++) sens[i] = map(sens[i],minChar[i],maxChar[i],0,100);
 	
+	if(line_color == BLACK) {
+		for(int i=0; i<5; i++) sens[i] = 100 - sens[i];
+	}
+
 	//センサごとの係数にて重み付け
 	float sens_sum = 0;
 	float sens_cal = 0;
@@ -166,52 +178,5 @@ void Sensor::calcPositionAnalog(){
 
 	line_position_analog = line_pos;
 }
-
-
-
-
-// //マーカー読み込み->状態決定
-// char marker_read(void)
-// {
-//   static boolean sw_r = false;
-//   static boolean sw_l = false;
-//   static byte flag = 0b000;
-//   static char marker = 0;
-//   static char last_marker = 0;
-//   int marker_sens_R = getMarkerDigital() & 0b0001;
-//   int marker_sens_L = getMarkerDigital() & 0b1000;
-//   int marker_sens_D = getMarkerDigital() & 0b1001;
-  
-//   if((marker_sens_R == 0b0001)&&(sw_r == false))
-//   {
-//     flag += 0b01;
-//     sw_r = true;
-//   }
-  
-//   if((marker_sens_L == 0b1000)&&(sw_l == false))
-//   {
-//     flag += 0b10;
-//     sw_l = true;
-//   }
-  
-//   if(marker_sens_D == 0b0000)
-//   {
-//     switch(flag)
-//     {
-//       case 0b01: marker = 'r'; break;
-//       case 0b10: marker = 'l'; break;
-//       case 0b11: marker = 'd'; break;
-//       default: marker = last_marker; 
-//     }
-//     sw_r = false;
-//     sw_l = false;
-//     flag = 0;
-//   } 
-//   last_marker = marker;
-//   return marker;
-// }
-
-
-
 
 #endif
