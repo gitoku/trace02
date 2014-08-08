@@ -31,7 +31,7 @@
 #define DT  20	//制御周期
 #define Kp 1.0
 #define Ki 1.0
-#define Kd 1.0
+#define Kd 0.0
 PID pid(Kp,Ki,Kd, DIRECT);
 
 //モータ
@@ -98,8 +98,8 @@ void setup(){
 	//スイッチがクリックされるまで待つ
 	waitUntilClick();
 	delay(500);
-
-        while(1);
+        
+        test();
 
 	//センサーのキャリブレーション
 	// calibration();
@@ -114,14 +114,14 @@ void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
 	
 	//センサによる測定
-	Sensor::measure();
+	Sensor::measure(BLACK);
 	int in = Sensor::getLinePosition();
 
 	//制御量計算
 	int out = pid.Compute(in,LINE_CENTER);
 	
 	//モータ出力
-	int speed_default = 30;
+	int speed_default = 0;
 	if( Sensor::getOnline() ){	//センサがライン上に存在
 		motorL.write(speed_default - out);
 		motorR.write(speed_default + out);
@@ -202,4 +202,18 @@ void calibration(){
 
 	tone(8, 2000, 100);
 	waitUntilClick();
+}
+
+void test(){
+  while(1){
+    tone(8, 1000, 100);
+    motorR.free();
+    motorL.free();
+    delay(5000);
+    tone(8, 2000, 100);
+    motorR.brake();
+    motorL.brake();
+    delay(5000);
+  }
+  
 }
