@@ -28,7 +28,7 @@
 
 
 //PID制御
-#define DT  10	//制御周期
+#define DT  5	//制御周期
 #define Kp 10000.0
 #define Ki 1.0
 #define Kd 0.0
