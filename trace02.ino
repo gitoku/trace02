@@ -99,7 +99,7 @@ void setup(){
 	waitUntilClick();
 	delay(500);
         
-        test();
+        //test();
 
 	//センサーのキャリブレーション
 	// calibration();
@@ -115,6 +115,8 @@ void loop(){
 	
 	//センサによる測定
 	Sensor::measure(BLACK);
+        Serial.print(Sensor::line_status,BIN);
+        
 	int in = Sensor::getLinePosition();
 
 	//制御量計算
@@ -140,6 +142,7 @@ void loop(){
 		motorL.brake();
 		motorR.brake();
 		waitUntilClick();
+                line_lost_time = 0;
 	}
 	
 	//デバッグ用
