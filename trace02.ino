@@ -101,6 +101,7 @@ void setup(){
         
         //test();
 
+
 	//センサーのキャリブレーション
 	// calibration();
 }
@@ -115,7 +116,7 @@ void loop(){
 	
 	//センサによる測定
 	Sensor::measure(BLACK);
-        Serial.print(Sensor::line_status,BIN);
+        
         
 	int in = Sensor::getLinePosition();
 
@@ -141,11 +142,16 @@ void loop(){
 	if( line_lost_time > SAFETY_STOP_TIMELIMIT ){
 		motorL.brake();
 		motorR.brake();
+                Serial.print("\nline lost.\nplease click switch!\n");
 		waitUntilClick();
                 line_lost_time = 0;
 	}
 	
 	//デバッグ用
+        Serial.print(Sensor::right_line_end,BIN);
+        Serial_printBin(Sensor::line_status,5);
+        Serial.print(Sensor::left_line_end,BIN);
+	Serial.print("\t");
 	Serial.print(in);
 	Serial.print("\t");
 	Serial.println(out);
@@ -154,7 +160,9 @@ void loop(){
 	intervalDelay_msec(DT);
 }
 
-
+void Serial_printBin(byte data,int num){
+  for(int i=0;i<num;i++) Serial.print(bitRead(data,i),BIN);
+}
 
 //スイッチが押されるまでLED点滅させて待つ
 void waitUntilClick(){

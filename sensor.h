@@ -16,6 +16,7 @@ enum Flag{NONE=0,RIGHT,LEFT,BOTH};
 namespace Sensor {
 	byte line_status;
 	int line_position;
+        byte marker;
 	float line_position_analog;
 	bool online;
 	Color line_color;
@@ -84,11 +85,10 @@ bool Sensor::getOnline(){
 
 
 void Sensor::getAllSensor(){
-	byte marker = analogRead(A5);
-	marker >>= 3;	//下位3bitを切り捨て(ノイズのため)
+	marker = (analogRead(A5)>>3);//下位3bitを切り捨て(ノイズのため)
 	marker ++;	//便宜上
 	marker >>= 3;	//上位4bitがそのまま各センサの入力となる
-	if(line_color == BLACK) marker = ~(marker);
+	if(line_color == BLACK) marker = (~marker)&0b1111;
 
 	right_marker = bitRead(marker,0);
 	right_line_end = bitRead(marker,1);
@@ -119,6 +119,7 @@ void Sensor::calcPosition(){
 		case 0b00000:
 			if (left_line_end ) pos = -30;
 			else if (right_line_end ) pos = 30;
+                        else online=false;
 		break;
 		default: online=false;
 	}
