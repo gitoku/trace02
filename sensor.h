@@ -20,25 +20,27 @@ namespace Sensor {
 	float line_position_analog;
 	Color line_color;
 	Flag flag = NONE;
-
+	
+	int line_status_analog[5];
 	int maxChar[5];
 	int minChar[5];
 	
-	void init();
-	void measure(Color _line_color);
+	void init();	//ピン初期化*
+	void measure(Color _line_color);	//センサによる計測*
 	
-	byte getLineDigital();
-	void calcPosition();
-	int getLinePosition();
-	bool getOnline();
+	byte getLineDigital();	//ラインセンサの状態取得
+	void calcPosition();	//状態からラインの位置計算
+	int getLinePosition();	//位置を取得*
+	bool getOnline();	//ライン上にいるかどうか取得*
 
-	byte getMarkerDigital();
-	void calcMarkerFlag();
-	Flag getMarkerFlag();
+	byte getMarkerDigital();	//マーカセンサの状態取得
+	void calcMarkerFlag();	//状態からフラグ算出
+	Flag getMarkerFlag();	//フラグの取得*
 
-	void getLineAnalog(int sens_val[]);
-	void setCharactoristics(int _maxChar[],int _minChar[]);
-	void calcPositionAnalog();
+	void getLineAnalog(int sens_val[]);	//ラインセンサの状態をアナログで取得
+	void setCharactoristics(int _maxChar[],int _minChar[]);	//各ラインセンサの特性を設定*
+	void calcPositionAnalog(int sens[]);	//状態からラインの位置を計算
+	float getLinePositionAnalog();	//ラインの位置を取得*
 };
 
 void Sensor::init(){
@@ -53,9 +55,14 @@ void Sensor::init(){
 
 void Sensor::measure(Color _line_color = WHITE){
 	line_color = _line_color;
+
 	line_status = getLineDigital();
-	marker_status = getMarkerDigital();
 	calcPosition();
+
+	// getLineAnalog(line_status_analog);
+	// calcPositionAnalog(line_status_analog);
+
+	marker_status = getMarkerDigital();
 	calcMarkerFlag();
 }
 
@@ -64,7 +71,8 @@ int Sensor::getLinePosition(){
 }
 
 bool Sensor::getOnline(){
-	if(line_status == 0b00000) return false;
+	if(line_status == 0b00000) return false;	//線を見失った
+	if(line_status == 0b11111) return false;	//持ち上げられた時とか
 	return true;
 }
 
@@ -75,7 +83,7 @@ byte Sensor::getMarkerDigital(){
 	よくわかんない
 	*/
 	if(line_color == WHITE) return (0b11);
-	if(line_color == BLACK) return (0b11);
+	if(line_color == BLACK) return ~(0b11);
 }
 
 byte Sensor::getLineDigital(){ 
@@ -148,12 +156,10 @@ void Sensor::setCharactoristics(int _maxChar[],int _minChar[]){
 }
 
 //注意：マーカによる測定の乱れが考慮されていない
-void Sensor::calcPositionAnalog(){
+void Sensor::calcPositionAnalog(int sens[]){
 	float line_pos = line_position_analog;
 	
-	//センサの値取得->各センサごとに特性を考慮して正規化
-	int sens[5];
-	getLineAnalog(sens);
+	//各センサごとに特性を考慮して正規化
 	for(int i=0; i<5; i++) sens[i] = map(sens[i],minChar[i],maxChar[i],0,100);
 	
 	if(line_color == BLACK) {
@@ -177,6 +183,10 @@ void Sensor::calcPositionAnalog(){
 	}
 
 	line_position_analog = line_pos;
+}
+
+float Sensor::getLinePositionAnalog(){
+	return line_position_analog;
 }
 
 #endif

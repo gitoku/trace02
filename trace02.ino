@@ -60,6 +60,9 @@ void setup(){
 	pinMode(SW_PIN, INPUT);
 	pinMode(LED_PIN, OUTPUT);
 	digitalWrite(LED_PIN, LOW);
+
+	//センサー
+	Sensor::init();
 	
 	//エンコーダー
 	pinMode(ENCODER_R_PIN, INPUT);
@@ -84,10 +87,6 @@ void setup(){
 	delay(100);
 	noTone(BUZZER_PIN);
 	
-	//スイッチがクリックされるまで待つ
-	waitUntilClick();
-	delay(500);
-
 	//モーター(max duty = 40)
 	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN);
 	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN);
@@ -95,6 +94,10 @@ void setup(){
 	motorL.setLimit(40);
 	motorR.setMode(ON_BRAKE);
 	motorL.setMode(ON_BRAKE);
+
+	//スイッチがクリックされるまで待つ
+	waitUntilClick();
+	delay(500);
 
 	//センサーのキャリブレーション
 	// calibration();
@@ -113,10 +116,10 @@ void loop(){
 	int in = Sensor::getLinePosition();
 
 	//制御量計算
-	int out = (int)pid.Compute((double)in,LINE_CENTER);
+	int out = pid.Compute(in,LINE_CENTER);
 	
 	//モータ出力
-	int speed_default = 30; //30, 1.1 //40, 1.1 s=0.6
+	int speed_default = 30;
 	if( Sensor::getOnline() ){	//センサがライン上に存在
 		motorL.write(speed_default - out);
 		motorR.write(speed_default + out);

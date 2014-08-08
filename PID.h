@@ -24,7 +24,8 @@ class PID
     PID(double, double, double, int);     //   Setpoint.  Initial tuning parameters are also set here
 	
     void SetMode(int Mode);               // * sets PID to either Manual (0) or Auto (non-0)
-
+    
+    double Compute(int,int);
     double Compute(double,double);                       // * performs the PID calculation.  it should be
                                           //   called every time loop() cycles. ON/OFF and
                                           //   calculation frequency can be set using SetMode
@@ -111,8 +112,11 @@ PID::PID(double Kp, double Ki, double Kd, int ControllerDirection)
  *   pid Output needs to be computed.  returns true when the output is computed,
  *   false when nothing has been done.
  **********************************************************************************/ 
-double PID::Compute(double _Input,double _Setpoint)
-{
+double PID::Compute(int _Input,int _Setpoint){
+  Compute( (double)_Input, (double)_Setpoint);
+}
+
+double PID::Compute(double _Input,double _Setpoint){
     *myInput = _Input;
     *mySetpoint = _Setpoint;
     
