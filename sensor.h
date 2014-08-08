@@ -110,10 +110,13 @@ void Sensor::calcPosition(){
 		case 0b00001: pos = 20; break;
 		case 0b00011: pos = 12; break;
 		case 0b00111: pos = 10; break;
-		case 0b00110: pos = 2; break;
+		case 0b00010: pos = 10; break;
+		case 0b00110: pos = 5; break;
 		case 0b01110: pos = 0; break;
-		case 0b01100: pos = -2; break;
+		case 0b00100: pos = 0; break;
+		case 0b01100: pos = -5; break;
 		case 0b11100: pos = -10; break;
+		case 0b01000: pos = -10; break;
 		case 0b11000: pos = -12; break;
 		case 0b10000: pos = -20; break;
 		case 0b00000:

@@ -28,8 +28,8 @@
 
 
 //PID制御
-#define DT  20	//制御周期
-#define Kp 1.0
+#define DT  10	//制御周期
+#define Kp 10000.0
 #define Ki 1.0
 #define Kd 0.0
 PID pid(Kp,Ki,Kd, DIRECT);
@@ -90,8 +90,8 @@ void setup(){
 	//モーター(max duty = 40)
 	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN);
 	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN);
-	motorR.setLimit(40);
-	motorL.setLimit(40);
+	motorR.setLimit(55);
+	motorL.setLimit(55);
 	motorR.setMode(ON_BRAKE);
 	motorL.setMode(ON_BRAKE);
 
@@ -109,7 +109,7 @@ void setup(){
 
 
 #define LINE_CENTER 0	//当たり前に思うかもしれないけど、アナログだと違うみたい
-#define SAFETY_STOP_TIMELIMIT 200	//[msec]
+#define SAFETY_STOP_TIMELIMIT 30	//[msec]
 
 void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
@@ -121,13 +121,14 @@ void loop(){
 	int in = Sensor::getLinePosition();
 
 	//制御量計算
-	int out = pid.Compute(in,LINE_CENTER);
+	//int out = pid.Compute(in,LINE_CENTER);
+        int out = 3*in/2;
 	
 	//モータ出力
-	int speed_default = 0;
+	int speed_default = 40;
 	if( Sensor::getOnline() ){	//センサがライン上に存在
 		motorL.write(speed_default - out);
-		motorR.write(speed_default + out);
+		motorR.write(speed_default + out -20);
 		line_lost_time = 0;
 	}
 	else line_lost_time += DT;	//センサを見失った
