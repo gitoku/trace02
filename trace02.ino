@@ -15,7 +15,7 @@
 #define MOTOR_L_FREE_PIN 7
 #define BUZZER_PIN 8
 #define LANCER_PIN 9
-#define IRLED_PIN 10	
+#define IRLED_PIN 10
 #define EXTRA_PIN 11	//?
 #define SW_PIN 12
 #define LED_PIN 13
@@ -59,7 +59,7 @@ void setup(){
 	//LEDスイッチ
 	pinMode(SW_PIN, INPUT);
 	pinMode(LED_PIN, OUTPUT);
-	digitalWrite(LED_PIN, LOW);
+	digitalWrite(LED_PIN, HIGH);	//多分LED off
 
 	//センサー
 	Sensor::init();
@@ -99,6 +99,8 @@ void setup(){
 	waitUntilClick();
 	delay(500);
 
+        while(1);
+
 	//センサーのキャリブレーション
 	// calibration();
 }
@@ -130,7 +132,7 @@ void loop(){
 	//ランサー制御
 	switch( Sensor::getMarkerFlag() ){
 		case RIGHT: lancer.write(LANCER_RIGHT); break;
-		case LEFT: lancer.write(LANCER_LEFT); break;
+		case LEFT:  lancer.write(LANCER_LEFT);  break;
 	}
 	
 	//ラインロストから一定時間立っていれば緊急停止
@@ -173,7 +175,7 @@ void intervalDelay_msec(int period){
 }
 
 
-
+//アナログセンサ使用時の各センサの特性取得用
 void calibration(){
 	int maximum[5];
 	int minimum[5];

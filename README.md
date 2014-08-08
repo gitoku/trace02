@@ -1,3 +1,15 @@
+# trace02
+
+## 構成
+|ファイル名|詳細|
+|:--:|:--|
+|trace02.ino|スケッチ本体|
+|Sensor.h|センサーについて(Sensorはnamespace)|
+|Motor.h|Class Motor|
+|PID.h|Class PID|
+|README.md|このファイル|
+
+
 ## PinsEntry
 
 |device name|pin Name(arduino style)|descript|
