@@ -147,37 +147,46 @@ int in = Sensor::getLinePositionAnalog();
 	}
 	
 	//デバッグ用
-	// Serial.print(Sensor::right_line_end,BIN);
-	// Serial_printBin(Sensor::line_status,5);
-	// Serial.print(Sensor::left_line_end,BIN);
-
-	// Serial.print("[");
-	// for(int i=0;i<5;i++){
-	// 	Serial.print(Sensor::line_status_analog[i]);
-	// 	Serial.print("\t");
-	// }
-	// Serial.print("]");
-	// Serial.print("\t");
-
-
+	// analogSensorPrint();
+	// digitalSensorPrint();
+	// positionPrint();
+	
 	// Serial.print(in);
 	// Serial.print("\t");
 	// Serial.println(out);
 
 
-	int pp = map(in,-100,85,0,100);
+	//制御周期DT[ms]になるように待つ
+	intervalDelay_msec(DT);
+}
+
+void analogSensorPrint(){
+	Serial.print("[");
+	for(int i=0;i<5;i++){
+		Serial.print(Sensor::line_status_analog[i]);
+		Serial.print("\t");
+	}
+	Serial.print("]");
+}
+
+void digitalSensorPrint(){
+	Serial.print(Sensor::right_line_end,BIN);
+	Serial_printBin(Sensor::line_status,5);
+	Serial.print(Sensor::left_line_end,BIN);
+}
+
+
+void positionPrint(int pos){
+	int pos_v = constrain(pos, 0, 100);;
 	for(int i=0;i<101;i++){ 
-		if(i==pp)Serial.print("#");
+		if(i==pos_v)Serial.print("#");
 		if(i%25==0)Serial.print("-");
 		else Serial.print("_");
 	}
 	Serial.print("\t[");
-	Serial.print(pp-50);
+	Serial.print(pos);
 	Serial.print("]");
 	Serial.println();
-
-	//制御周期DT[ms]になるように待つ
-	intervalDelay_msec(DT);
 }
 
 void Serial_printBin(byte data,int num){
