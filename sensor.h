@@ -17,7 +17,7 @@ namespace Sensor {
 	byte line_status;
 	int line_position;
         byte marker;
-	float line_position_analog;
+	int line_position_analog;
 	bool online;
 	Color line_color;
 	Flag flag;
@@ -183,9 +183,9 @@ void Sensor::calcPositionAnalog(int sens[]){
 	
 	//マーカセンサの情報の加味
 	if (left_line_end ) line_pos = 40;
-	else if (right_line_end ) line_pos = 0;
+	else if (right_line_end ) line_pos = 3;
 
-	line_position_analog = line_pos-20;
+	line_position_analog = (int)((-1)*(line_pos-20)*5);
 }
 
 float Sensor::getLinePositionAnalog(){

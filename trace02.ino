@@ -109,7 +109,7 @@ void setup(){
 
 
 #define LINE_CENTER 0	//当たり前に思うかもしれないけど、アナログだと違うみたい
-#define SAFETY_STOP_TIMELIMIT 30	//[msec]
+#define SAFETY_STOP_TIMELIMIT 50	//[msec]
 
 void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
@@ -119,13 +119,11 @@ void loop(){
         
         
 //	int in = Sensor::getLinePosition();
-        float in_f = Sensor::getLinePositionAnalog();
-        int in = (int)(in_f*5);
+        int in = Sensor::getLinePositionAnalog();
 
 	//制御量計算
 	//int out = pid.Compute(in,LINE_CENTER);
-        int out = 3*in/2;
-        out = 0;
+        int out = 0*in;
 	
 	//モータ出力
 	int speed_default = 0;
@@ -163,9 +161,25 @@ void loop(){
 //        }
 //          Serial.print("]");
 //	Serial.print("\t");
-	Serial.print(in);
-	Serial.print("\t");
-	Serial.println(out);
+
+
+//	Serial.print(in);
+//	Serial.print("\t");
+//	Serial.println(out);
+        int pp = map(in,-100,85,0,100);
+        for(int i=0;i<101;i++){ 
+          if(i==pp)Serial.print("#");
+          else if(i==0)Serial.print("-");
+          else if(i==25)Serial.print("-");
+          else if(i==50)Serial.print("-");
+          else if(i==75)Serial.print("-");
+          else if(i==100)Serial.print("-");
+          else Serial.print("_");
+        }
+        Serial.print("\t[");
+        Serial.print(pp-50);
+        Serial.print("]");
+        Serial.println();
 
 	//制御周期DT[ms]になるように待つ
 	intervalDelay_msec(DT);
