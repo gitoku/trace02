@@ -115,8 +115,7 @@ void loop(){
 	Sensor::measure(BLACK);
 
 
-//	int in = Sensor::getLinePosition();
-int in = Sensor::getLinePositionAnalog();
+	int in = Sensor::getLinePosition(ANALOG);
 
 	//制御量計算
 	//int out = pid.Compute(in,LINE_CENTER);
@@ -150,7 +149,7 @@ int in = Sensor::getLinePositionAnalog();
 	// analogSensorPrint();
 	// digitalSensorPrint();
 	// positionPrint();
-	
+
 	// Serial.print(in);
 	// Serial.print("\t");
 	// Serial.println(out);
@@ -219,8 +218,8 @@ void intervalDelay_msec(int period){
 void calibration(){
 	int maximum[5];
 	int minimum[5];
-	Sensor::getLineAnalog(maximum);
-	Sensor::getLineAnalog(minimum);
+	Sensor::getSensorAnalog(maximum);
+	Sensor::getSensorAnalog(minimum);
 	
 	motorR.free();
 	motorL.free();
@@ -228,7 +227,7 @@ void calibration(){
 	//手動で床上を走らせ、センサたちに白と黒を教えて下さい(持ち上げないこと)
 	while(!digitalRead(SW_PIN)){	
 		int sens_val[5];
-		Sensor::getLineAnalog(sens_val);
+		Sensor::getSensorAnalog(sens_val);
 		for(int n=0; n<5; n++){
 			minimum[n] = min(minimum[n], sens_val[n]);
 			maximum[n] = max(maximum[n], sens_val[n]);
