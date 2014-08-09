@@ -28,7 +28,7 @@
 
 
 //PID制御
-#define DT  5	//制御周期
+#define DT  20	//制御周期
 #define Kp 10000.0
 #define Ki 1.0
 #define Kd 0.0
@@ -103,7 +103,7 @@ void setup(){
 
 
 	//センサーのキャリブレーション
-	// calibration();
+	calibration();
 }
 
 
@@ -118,17 +118,20 @@ void loop(){
 	Sensor::measure(BLACK);
         
         
-	int in = Sensor::getLinePosition();
+//	int in = Sensor::getLinePosition();
+        float in_f = Sensor::getLinePositionAnalog();
+        int in = (int)(in_f*5);
 
 	//制御量計算
 	//int out = pid.Compute(in,LINE_CENTER);
         int out = 3*in/2;
+        out = 0;
 	
 	//モータ出力
-	int speed_default = 40;
+	int speed_default = 0;
 	if( Sensor::getOnline() ){	//センサがライン上に存在
 		motorL.write(speed_default - out);
-		motorR.write(speed_default + out -20);
+		motorR.write(speed_default + out);
 		line_lost_time = 0;
 	}
 	else line_lost_time += DT;	//センサを見失った
@@ -149,10 +152,17 @@ void loop(){
 	}
 	
 	//デバッグ用
-        Serial.print(Sensor::right_line_end,BIN);
-        Serial_printBin(Sensor::line_status,5);
-        Serial.print(Sensor::left_line_end,BIN);
-	Serial.print("\t");
+//        Serial.print(Sensor::right_line_end,BIN);
+//        Serial_printBin(Sensor::line_status,5);
+//        Serial.print(Sensor::left_line_end,BIN);
+
+//          Serial.print("[");
+//        for(int i=0;i<5;i++){
+//          Serial.print(Sensor::line_status_analog[i]);
+//          Serial.print("\t");
+//        }
+//          Serial.print("]");
+//	Serial.print("\t");
 	Serial.print(in);
 	Serial.print("\t");
 	Serial.println(out);
@@ -204,7 +214,13 @@ void calibration(){
 		for(int n=0; n<5; n++){
 			minimum[n] = min(minimum[n], sens_val[n]);
 			maximum[n] = max(maximum[n], sens_val[n]);
+                        Serial.print("[");
+                        Serial.print(minimum[n]);
+                        Serial.print("-");
+                        Serial.print(maximum[n]);
+                        Serial.print("]\t");
 		} 
+                Serial.println();
 		tone(8, 2000, 30);
 		delay(60);
 	}
@@ -213,7 +229,6 @@ void calibration(){
 	Sensor::setCharactoristics(maximum,minimum);
 
 	tone(8, 2000, 100);
-	waitUntilClick();
 }
 
 void test(){

@@ -8,8 +8,8 @@
 #endif
 
 #define IRLED_PIN 10
-#define IRLED_on() digitalWrite(IRLED_PIN, LOW)
 #define IRLED_off() digitalWrite(IRLED_PIN, HIGH)
+#define IRLED_on() digitalWrite(IRLED_PIN, LOW)
 enum Color {WHITE, BLACK};
 enum Flag{NONE=0,RIGHT,LEFT,BOTH};
 
@@ -54,6 +54,7 @@ namespace Sensor {
 
 void Sensor::init(){
 	pinMode(IRLED_PIN, OUTPUT);
+        IRLED_off();
 	pinMode(A0, INPUT);
 	pinMode(A1, INPUT);
 	pinMode(A2, INPUT);
@@ -69,8 +70,8 @@ void Sensor::measure(Color _line_color = WHITE){
 	getAllSensor();
 	calcPosition();
 
-	// getLineAnalog(line_status_analog);
-	// calcPositionAnalog(line_status_analog);
+	getLineAnalog(line_status_analog);
+	calcPositionAnalog(line_status_analog);
 
 	calcMarkerFlag();
 }
@@ -95,10 +96,8 @@ void Sensor::getAllSensor(){
 	left_line_end = bitRead(marker,2);
 	left_marker = bitRead(marker,3);
 
-	IRLED_on();
 	if(line_color == WHITE) line_status = ~(PINC) & 0b011111;
 	else if(line_color == BLACK) line_status = PINC & 0b011111;
-	IRLED_off();
 }
 
 
@@ -150,14 +149,7 @@ Flag Sensor::getMarkerFlag(){
 
 //各センサをanalogRead
 void Sensor::getLineAnalog(int sens_val[]){
-	const int WAIT = 10;
-	IRLED_on();
-	delay(WAIT);
 	for(int i=0; i<5; i++) sens_val[i] = analogRead(i);
-
-	IRLED_off();
-	delay(WAIT); 
-	for(int i=0; i<5; i++) sens_val[i] -= analogRead(i);
 }
 
 //センサごとの特性(最大最小)をセット
@@ -175,15 +167,14 @@ void Sensor::calcPositionAnalog(int sens[]){
 	//各センサごとに特性を考慮して正規化
 	for(int i=0; i<5; i++) sens[i] = map(sens[i],minChar[i],maxChar[i],0,100);
 	
-	if(line_color == BLACK) {
+	if(line_color == WHITE) {
 		for(int i=0; i<5; i++) sens[i] = 100 - sens[i];
 	}
 
 	//センサごとの係数にて重み付け
 	float sens_sum = 0;
 	float sens_cal = 0;
-	// const float sens_coefficient[5] = {1, 11, 21, 31, 41};
-	const float sens_coefficient[5] = {5, 10, 15, 20, 25};
+        const float sens_coefficient[5] = {1, 11, 21, 31, 41};
 	for(int i=0; i<5; i++){
 		sens_sum += sens[i];
 		sens_cal += sens[i] * sens_coefficient[i];
@@ -191,12 +182,10 @@ void Sensor::calcPositionAnalog(int sens[]){
 	line_pos = sens_cal / sens_sum;
 	
 	//マーカセンサの情報の加味
-	// if (left_line_end ) line_pos = 0;
-	// else if (right_line_end ) line_pos = 40;
-	if (left_line_end ) line_pos = 0;
-	else if (right_line_end ) line_pos = 30;
+	if (left_line_end ) line_pos = 40;
+	else if (right_line_end ) line_pos = 0;
 
-	line_position_analog = line_pos;
+	line_position_analog = line_pos-20;
 }
 
 float Sensor::getLinePositionAnalog(){
