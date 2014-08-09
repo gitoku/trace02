@@ -62,7 +62,7 @@ void setup(){
 	digitalWrite(LED_PIN, HIGH);	//多分LED off
 
 	//センサー
-	Sensor::init();
+	Sensor::init(BLACK);
 	
 	//エンコーダー
 	pinMode(ENCODER_R_PIN, INPUT);
@@ -112,7 +112,7 @@ void loop(){
 	static int line_lost_time = 0;	//ラインをロストした時間[msec]
 	
 	//センサによる測定
-	Sensor::measure(BLACK);
+	Sensor::measure();
 
 
 	int in = Sensor::getLinePosition(ANALOG);
@@ -170,7 +170,7 @@ void analogSensorPrint(){
 
 void digitalSensorPrint(){
 	Serial.print(Sensor::right_line_end,BIN);
-	Serial_printBin(Sensor::line_status,5);
+	Serial_printBin(Sensor::line_status_digital,5);
 	Serial.print(Sensor::left_line_end,BIN);
 }
 
@@ -216,56 +216,35 @@ void intervalDelay_msec(int period){
 
 //アナログセンサ使用時の各センサの特性取得用
 void calibration(){
-	int maximum[5];
-	int minimum[5];
-	Sensor::getSensorAnalogRaw(maximum);
-	Sensor::getSensorAnalogRaw(minimum);
-	
 	motorR.free();
 	motorL.free();
 
-	//手動で床上を走らせ、センサたちに白と黒を教えて下さい(持ち上げないこと)
 	while(!digitalRead(SW_PIN)) {
 		Sensor::refleshCharactoristics();
-		tone(8, 2000, 30);
+		tone(BUZZER_PIN, 2000, 30);
 		delay(60);
 	}
 	while(digitalRead(SW_PIN));
 	
-
-	while(!digitalRead(SW_PIN)){	
-		int sens_val[5];
-		// Sensor::getSensorAnalog();
-		for(int n=0; n<5; n++){
-			minimum[n] = min(minimum[n], sens_val[n]);
-			maximum[n] = max(maximum[n], sens_val[n]);
-			Serial.print("[");
-			Serial.print(minimum[n]);
-			Serial.print("-");
-			Serial.print(maximum[n]);
-			Serial.print("]\t");
-		} 
-		Serial.println();
-		tone(8, 2000, 30);
+	while(!digitalRead(SW_PIN)) {
+		Sensor::refleshAnalogSensorEnd();
+		tone(BUZZER_PIN, 800, 30);
 		delay(60);
 	}
 	while(digitalRead(SW_PIN));
 
-	
-
-	tone(8, 2000, 100);
+	tone(BUZZER_PIN, 2000, 100);
 }
 
 void test(){
 	while(1){
-		tone(8, 1000, 100);
+		tone(BUZZER_PIN, 1000, 100);
 		motorR.free();
 		motorL.free();
 		delay(5000);
-		tone(8, 2000, 100);
+		tone(BUZZER_PIN, 2000, 100);
 		motorR.brake();
 		motorL.brake();
 		delay(5000);
 	}
-
 }

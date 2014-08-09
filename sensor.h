@@ -10,35 +10,42 @@
 #define IRLED_PIN 10
 #define IRLED_on() digitalWrite(IRLED_PIN, HIGH)
 #define IRLED_off() digitalWrite(IRLED_PIN, LOW)
+#define maximum(a,b) a=max(a,b)
+#define minimum(a,b) a=min(a,b)
 
 enum Color {WHITE, BLACK};
 enum Flag {NONE=0,RIGHT,LEFT,BOTH};
 enum DataFormat {ANALOG,DIGITAL};
 
 namespace Sensor {
-	byte line_status;
-	int line_position_digital;
+	Color line_color;
+
+	byte line_status_digital;
+	int line_status_analog[5];
 	byte marker;
+
+	int line_position_digital;
 	int line_position_analog;
 	bool online;
-	Color line_color;
-	Flag flag;
+
 	bool right_marker;
+	bool left_marker;
 	bool right_line_end;
 	bool left_line_end;
-	bool left_marker;
 	
-	int line_status_analog[5];
+	Flag flag;
+
+	//sensor charactoristic
 	int maxChar[5];
 	int minChar[5];
 	int line_pos_left_end;
 	int line_pos_right_end;
 	
 
-	void init();	//ピン初期化*
+	void init(Color _line_color);	//ピン初期化*
 
 	//センサによる計測*(以下の関数の実行を含む)
-	void measure(Color _line_color);	
+	void measure();	
 		void getSensorDigital();	//すべてのセンサの状態取得
 		//ライン(デジタル)
 		void calcPositionDigital();	//状態からラインの位置計算
@@ -47,8 +54,10 @@ namespace Sensor {
 		//ライン(アナログ)
 		void getSensorAnalogRaw(int sens_val[]);	//ラインセンサの状態をアナログで取得
 		void getSensorAnalog();
-		void calcPositionAnalog();	//状態からラインの位置を計算
+		int calcPositionAnalog();	//状態からラインの位置を計算
+		void calcPositionAnalog2();	//状態からラインの位置を計算
 		void refleshCharactoristics();
+		void refleshAnalogSensorEnd();
 
 	//値を取得するとき用
 	int getLinePosition(DataFormat df);	//ライン位置を取得(デジタル)*
@@ -56,7 +65,8 @@ namespace Sensor {
 	Flag getMarkerFlag();	//フラグの取得*
 };
 
-void Sensor::init(){
+void Sensor::init(Color _line_color = WHITE){
+	line_color = _line_color;
 	pinMode(IRLED_PIN, OUTPUT);
 	IRLED_off();
 	pinMode(A0, INPUT);
@@ -66,17 +76,17 @@ void Sensor::init(){
 	pinMode(A4, INPUT);
 	pinMode(A5, INPUT);
 	flag = NONE;
+
+	getSensorAnalogRaw(maxChar);
+	getSensorAnalogRaw(minChar);
 }
 
-void Sensor::measure(Color _line_color = WHITE){
-	line_color = _line_color;
-
+void Sensor::measure(){
 	getSensorDigital();
 	getSensorAnalog();
 
 	calcPositionDigital();
-	calcPositionAnalog();
-
+	calcPositionAnalog2();
 	calcMarkerFlag();
 }
 
@@ -101,8 +111,8 @@ void Sensor::getSensorDigital(){
 	left_line_end = bitRead(marker,2);
 	left_marker = bitRead(marker,3);
 
-	if(line_color == WHITE) line_status = ~(PINC) & 0b011111;
-	else if(line_color == BLACK) line_status = PINC & 0b011111;
+	if(line_color == WHITE) line_status_digital = ~(PINC) & 0b011111;
+	else if(line_color == BLACK) line_status_digital = PINC & 0b011111;
 }
 
 
@@ -110,7 +120,7 @@ void Sensor::calcPositionDigital(){
 	int pos = line_position_digital;
 	
 	online=true;
-	switch( line_status ){
+	switch( line_status_digital ){
 		case 0b00001: pos = 20; break;
 		case 0b00011: pos = 12; break;
 		case 0b00111: pos = 10; break;
@@ -166,27 +176,36 @@ void Sensor::refleshCharactoristics(){
 	int sens_val[5];
 	for(int i=0;i<5;i++){ 
 		sens_val[i] = analogRead(i);
-		maxChar[i] = min(maxChar[i], sens_val[i]);
-		minChar[i] = max(minChar[i], sens_val[i]);
+		minimum(maxChar[i], sens_val[i]);
+		maximum(minChar[i], sens_val[i]);
 	}
 }
 
-//注意：マーカによる測定の乱れが考慮されていない
-void Sensor::calcPositionAnalog(){
-	int line_pos;
-	
+const int sens_coefficient[5] = {1, 11, 21, 31, 41};
 
+int Sensor::calcPositionAnalog(){
+	int sens_sum = 0;
+	int sens_cal = 0;
 
-	//センサごとの係数にて重み付け
-	float sens_sum = 0;
-	float sens_cal = 0;
-	const float sens_coefficient[5] = {1, 11, 21, 31, 41};
 	for(int i=0; i<5; i++){
 		sens_sum += line_status_analog[i];
 		sens_cal += line_status_analog[i] * sens_coefficient[i];
 	}
-	line_pos = sens_cal / sens_sum;
-	line_pos *= 100;
+	return ( sens_cal * 100 ) / sens_sum;
+}
+
+void Sensor::refleshAnalogSensorEnd(){
+	getSensorDigital();
+	getSensorAnalog();
+
+	int line_pos = calcPositionAnalog();
+	if (right_line_end ) minimum(line_pos_right_end,line_pos);
+	else if (left_line_end ) maximum(line_pos_left_end,line_pos);
+}
+
+void Sensor::calcPositionAnalog2(){
+
+	int line_pos = calcPositionAnalog();
 	line_pos = map(line_pos,line_pos_right_end,line_pos_left_end,-100,100);
 
 	//マーカセンサの情報の加味
