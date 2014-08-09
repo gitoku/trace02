@@ -31,21 +31,24 @@ namespace Sensor {
 	int line_status_analog[5];
 	int maxChar[5];
 	int minChar[5];
+	int line_pos_left_end;
+	int line_pos_right_end;
 	
 
 	void init();	//ピン初期化*
-	void setCharactoristics(int _maxChar[],int _minChar[]);	//各ラインセンサの特性を設定*
-	
+
 	//センサによる計測*(以下の関数の実行を含む)
 	void measure(Color _line_color);	
 		void getSensorDigital();	//すべてのセンサの状態取得
 		//ライン(デジタル)
-		void calcPosition();	//状態からラインの位置計算
+		void calcPositionDigital();	//状態からラインの位置計算
 		//マーカー
 		void calcMarkerFlag();	//状態からフラグ算出
 		//ライン(アナログ)
-		void getSensorAnalog(int sens_val[]);	//ラインセンサの状態をアナログで取得
-		void calcPositionAnalog(int sens[]);	//状態からラインの位置を計算
+		void getSensorAnalogRaw(int sens_val[]);	//ラインセンサの状態をアナログで取得
+		void getSensorAnalog();
+		void calcPositionAnalog();	//状態からラインの位置を計算
+		void refleshCharactoristics();
 
 	//値を取得するとき用
 	int getLinePosition(DataFormat df);	//ライン位置を取得(デジタル)*
@@ -69,10 +72,10 @@ void Sensor::measure(Color _line_color = WHITE){
 	line_color = _line_color;
 
 	getSensorDigital();
-	getSensorAnalog(line_status_analog);
+	getSensorAnalog();
 
-	calcPosition();
-	calcPositionAnalog(line_status_analog);
+	calcPositionDigital();
+	calcPositionAnalog();
 
 	calcMarkerFlag();
 }
@@ -103,7 +106,7 @@ void Sensor::getSensorDigital(){
 }
 
 
-void Sensor::calcPosition(){
+void Sensor::calcPositionDigital(){
 	int pos = line_position_digital;
 	
 	online=true;
@@ -143,51 +146,54 @@ Flag Sensor::getMarkerFlag(){
 }
 
 
-
-//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-//↓↓↓↓↓↓↓↓↓↓なんとなく不穏な感じの漂う関数たち↓↓↓↓↓↓↓↓↓↓
-//↓↓↓↓↓↓↓↓↓(アナログでセンサ取得したいようです)↓↓↓↓↓↓↓↓↓
-//↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-
 //各センサをanalogRead
-void Sensor::getSensorAnalog(int sens_val[]){
+void Sensor::getSensorAnalogRaw(int sens_val[]){
 	for(int i=0; i<5; i++) sens_val[i] = analogRead(i);
 }
 
+//各センサごとに特性を考慮して正規化
+void Sensor::getSensorAnalog(){
+	for(int i=0; i<5; i++){ 
+		line_status_analog[i] = analogRead(i);
+		line_status_analog[i] = map(line_status_analog[i],minChar[i],maxChar[i],0,100);
+		if(line_color == WHITE) line_status_analog[i] = 100 - line_status_analog[i];
+	}
+}
+
+
 //センサごとの特性(最大最小)をセット
-void Sensor::setCharactoristics(int _maxChar[],int _minChar[]){
+void Sensor::refleshCharactoristics(){
+	int sens_val[5];
 	for(int i=0;i<5;i++){ 
-		maxChar[i] = _maxChar[i];
-		minChar[i] = _minChar[i];
+		sens_val[i] = analogRead(i);
+		maxChar[i] = min(maxChar[i], sens_val[i]);
+		minChar[i] = max(minChar[i], sens_val[i]);
 	}
 }
 
 //注意：マーカによる測定の乱れが考慮されていない
-void Sensor::calcPositionAnalog(int sens[]){
-	float line_pos = line_position_analog;
+void Sensor::calcPositionAnalog(){
+	int line_pos;
 	
-	//各センサごとに特性を考慮して正規化
-	for(int i=0; i<5; i++) sens[i] = map(sens[i],minChar[i],maxChar[i],0,100);
 
-		if(line_color == WHITE) {
-			for(int i=0; i<5; i++) sens[i] = 100 - sens[i];
-		}
 
 	//センサごとの係数にて重み付け
 	float sens_sum = 0;
 	float sens_cal = 0;
 	const float sens_coefficient[5] = {1, 11, 21, 31, 41};
 	for(int i=0; i<5; i++){
-		sens_sum += sens[i];
-		sens_cal += sens[i] * sens_coefficient[i];
+		sens_sum += line_status_analog[i];
+		sens_cal += line_status_analog[i] * sens_coefficient[i];
 	}
 	line_pos = sens_cal / sens_sum;
-	
-	//マーカセンサの情報の加味
-	if (left_line_end ) line_pos = 40;
-	else if (right_line_end ) line_pos = 3;
+	line_pos *= 100;
+	line_pos = map(line_pos,line_pos_right_end,line_pos_left_end,-100,100);
 
-	line_position_analog = (int)((-1)*(line_pos-20)*5);
+	//マーカセンサの情報の加味
+	if (right_line_end ) line_pos = -100;
+	else if (left_line_end ) line_pos = 100;
+
+	line_position_analog = line_pos;
 }
 
 #endif

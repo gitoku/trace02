@@ -218,16 +218,24 @@ void intervalDelay_msec(int period){
 void calibration(){
 	int maximum[5];
 	int minimum[5];
-	Sensor::getSensorAnalog(maximum);
-	Sensor::getSensorAnalog(minimum);
+	Sensor::getSensorAnalogRaw(maximum);
+	Sensor::getSensorAnalogRaw(minimum);
 	
 	motorR.free();
 	motorL.free();
 
 	//手動で床上を走らせ、センサたちに白と黒を教えて下さい(持ち上げないこと)
+	while(!digitalRead(SW_PIN)) {
+		Sensor::refleshCharactoristics();
+		tone(8, 2000, 30);
+		delay(60);
+	}
+	while(digitalRead(SW_PIN));
+	
+
 	while(!digitalRead(SW_PIN)){	
 		int sens_val[5];
-		Sensor::getSensorAnalog(sens_val);
+		// Sensor::getSensorAnalog();
 		for(int n=0; n<5; n++){
 			minimum[n] = min(minimum[n], sens_val[n]);
 			maximum[n] = max(maximum[n], sens_val[n]);
@@ -243,7 +251,7 @@ void calibration(){
 	}
 	while(digitalRead(SW_PIN));
 
-	Sensor::setCharactoristics(maximum,minimum);
+	
 
 	tone(8, 2000, 100);
 }
