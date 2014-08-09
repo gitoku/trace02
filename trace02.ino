@@ -163,20 +163,18 @@ int in = Sensor::getLinePositionAnalog();
 	// Serial.print(in);
 	// Serial.print("\t");
 	// Serial.println(out);
-int pp = map(in,-100,85,0,100);
-for(int i=0;i<101;i++){ 
-	if(i==pp)Serial.print("#");
-	else if(i==0)Serial.print("-");
-	else if(i==25)Serial.print("-");
-	else if(i==50)Serial.print("-");
-	else if(i==75)Serial.print("-");
-	else if(i==100)Serial.print("-");
-	else Serial.print("_");
-}
-Serial.print("\t[");
-Serial.print(pp-50);
-Serial.print("]");
-Serial.println();
+
+
+	int pp = map(in,-100,85,0,100);
+	for(int i=0;i<101;i++){ 
+		if(i==pp)Serial.print("#");
+		if(i%25==0)Serial.print("-");
+		else Serial.print("_");
+	}
+	Serial.print("\t[");
+	Serial.print(pp-50);
+	Serial.print("]");
+	Serial.println();
 
 	//制御周期DT[ms]になるように待つ
 	intervalDelay_msec(DT);

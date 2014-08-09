@@ -14,8 +14,7 @@
 enum Mode {ON_BRAKE=0,ON_FREE=1,NO_BUFFER};
 
 
-class Motor
-{
+class Motor{
 	private:
 		int pwm_pin;
 		int free_pin;

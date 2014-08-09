@@ -16,7 +16,7 @@ enum Flag{NONE=0,RIGHT,LEFT,BOTH};
 namespace Sensor {
 	byte line_status;
 	int line_position;
-        byte marker;
+	byte marker;
 	int line_position_analog;
 	bool online;
 	Color line_color;
@@ -54,7 +54,7 @@ namespace Sensor {
 
 void Sensor::init(){
 	pinMode(IRLED_PIN, OUTPUT);
-        IRLED_off();
+	IRLED_off();
 	pinMode(A0, INPUT);
 	pinMode(A1, INPUT);
 	pinMode(A2, INPUT);
@@ -119,9 +119,9 @@ void Sensor::calcPosition(){
 		case 0b11000: pos = -12; break;
 		case 0b10000: pos = -20; break;
 		case 0b00000:
-			if (left_line_end ) pos = -30;
-			else if (right_line_end ) pos = 30;
-                        else online=false;
+		if (left_line_end ) pos = -30;
+		else if (right_line_end ) pos = 30;
+		else online=false;
 		break;
 		default: online=false;
 	}
@@ -131,13 +131,13 @@ void Sensor::calcPosition(){
 
 
 void Sensor::calcMarkerFlag(){
-  if(left_marker && right_marker ) flag = BOTH;
-  else if(left_marker) flag = RIGHT;
-  else if(right_marker) flag = LEFT;
+	if(left_marker && right_marker ) flag = BOTH;
+	else if(left_marker) flag = RIGHT;
+	else if(right_marker) flag = LEFT;
 }
 
 Flag Sensor::getMarkerFlag(){
-  return flag;
+	return flag;
 }
 
 
@@ -166,15 +166,15 @@ void Sensor::calcPositionAnalog(int sens[]){
 	
 	//各センサごとに特性を考慮して正規化
 	for(int i=0; i<5; i++) sens[i] = map(sens[i],minChar[i],maxChar[i],0,100);
-	
-	if(line_color == WHITE) {
-		for(int i=0; i<5; i++) sens[i] = 100 - sens[i];
-	}
+		
+		if(line_color == WHITE) {
+			for(int i=0; i<5; i++) sens[i] = 100 - sens[i];
+		}
 
 	//センサごとの係数にて重み付け
 	float sens_sum = 0;
 	float sens_cal = 0;
-        const float sens_coefficient[5] = {1, 11, 21, 31, 41};
+	const float sens_coefficient[5] = {1, 11, 21, 31, 41};
 	for(int i=0; i<5; i++){
 		sens_sum += sens[i];
 		sens_cal += sens[i] * sens_coefficient[i];
