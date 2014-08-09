@@ -98,9 +98,6 @@ void setup(){
 	//スイッチがクリックされるまで待つ
 	waitUntilClick();
 	delay(500);
-        
-        //test();
-
 
 	//センサーのキャリブレーション
 	calibration();
@@ -116,14 +113,14 @@ void loop(){
 	
 	//センサによる測定
 	Sensor::measure(BLACK);
-        
-        
+
+
 //	int in = Sensor::getLinePosition();
-        int in = Sensor::getLinePositionAnalog();
+int in = Sensor::getLinePositionAnalog();
 
 	//制御量計算
 	//int out = pid.Compute(in,LINE_CENTER);
-        int out = 0*in;
+	int out = 0*in;
 	
 	//モータ出力
 	int speed_default = 0;
@@ -144,49 +141,49 @@ void loop(){
 	if( line_lost_time > SAFETY_STOP_TIMELIMIT ){
 		motorL.brake();
 		motorR.brake();
-                Serial.print("\nline lost.\nplease click switch!\n");
+		Serial.print("\nline lost.\nplease click switch!\n");
 		waitUntilClick();
-                line_lost_time = 0;
+		line_lost_time = 0;
 	}
 	
 	//デバッグ用
-//        Serial.print(Sensor::right_line_end,BIN);
-//        Serial_printBin(Sensor::line_status,5);
-//        Serial.print(Sensor::left_line_end,BIN);
+	// Serial.print(Sensor::right_line_end,BIN);
+	// Serial_printBin(Sensor::line_status,5);
+	// Serial.print(Sensor::left_line_end,BIN);
 
-//          Serial.print("[");
-//        for(int i=0;i<5;i++){
-//          Serial.print(Sensor::line_status_analog[i]);
-//          Serial.print("\t");
-//        }
-//          Serial.print("]");
-//	Serial.print("\t");
+	// Serial.print("[");
+	// for(int i=0;i<5;i++){
+	// 	Serial.print(Sensor::line_status_analog[i]);
+	// 	Serial.print("\t");
+	// }
+	// Serial.print("]");
+	// Serial.print("\t");
 
 
-//	Serial.print(in);
-//	Serial.print("\t");
-//	Serial.println(out);
-        int pp = map(in,-100,85,0,100);
-        for(int i=0;i<101;i++){ 
-          if(i==pp)Serial.print("#");
-          else if(i==0)Serial.print("-");
-          else if(i==25)Serial.print("-");
-          else if(i==50)Serial.print("-");
-          else if(i==75)Serial.print("-");
-          else if(i==100)Serial.print("-");
-          else Serial.print("_");
-        }
-        Serial.print("\t[");
-        Serial.print(pp-50);
-        Serial.print("]");
-        Serial.println();
+	// Serial.print(in);
+	// Serial.print("\t");
+	// Serial.println(out);
+int pp = map(in,-100,85,0,100);
+for(int i=0;i<101;i++){ 
+	if(i==pp)Serial.print("#");
+	else if(i==0)Serial.print("-");
+	else if(i==25)Serial.print("-");
+	else if(i==50)Serial.print("-");
+	else if(i==75)Serial.print("-");
+	else if(i==100)Serial.print("-");
+	else Serial.print("_");
+}
+Serial.print("\t[");
+Serial.print(pp-50);
+Serial.print("]");
+Serial.println();
 
 	//制御周期DT[ms]になるように待つ
 	intervalDelay_msec(DT);
 }
 
 void Serial_printBin(byte data,int num){
-  for(int i=0;i<num;i++) Serial.print(bitRead(data,i),BIN);
+	for(int i=0;i<num;i++) Serial.print(bitRead(data,i),BIN);
 }
 
 //スイッチが押されるまでLED点滅させて待つ
@@ -228,13 +225,13 @@ void calibration(){
 		for(int n=0; n<5; n++){
 			minimum[n] = min(minimum[n], sens_val[n]);
 			maximum[n] = max(maximum[n], sens_val[n]);
-                        Serial.print("[");
-                        Serial.print(minimum[n]);
-                        Serial.print("-");
-                        Serial.print(maximum[n]);
-                        Serial.print("]\t");
+			Serial.print("[");
+			Serial.print(minimum[n]);
+			Serial.print("-");
+			Serial.print(maximum[n]);
+			Serial.print("]\t");
 		} 
-                Serial.println();
+		Serial.println();
 		tone(8, 2000, 30);
 		delay(60);
 	}
@@ -246,15 +243,15 @@ void calibration(){
 }
 
 void test(){
-  while(1){
-    tone(8, 1000, 100);
-    motorR.free();
-    motorL.free();
-    delay(5000);
-    tone(8, 2000, 100);
-    motorR.brake();
-    motorL.brake();
-    delay(5000);
-  }
-  
+	while(1){
+		tone(8, 1000, 100);
+		motorR.free();
+		motorL.free();
+		delay(5000);
+		tone(8, 2000, 100);
+		motorR.brake();
+		motorL.brake();
+		delay(5000);
+	}
+
 }
