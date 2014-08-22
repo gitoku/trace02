@@ -47,17 +47,16 @@ namespace Sensor {
 	//センサによる計測*(以下の関数の実行を含む)
 	void measure();	
 		void getSensorDigital();	//すべてのセンサの状態取得
-		//ライン(デジタル)
-		void calcPositionDigital();	//状態からラインの位置計算
-		//マーカー
+		void getLineDigital();	//状態からラインの位置計算
 		void calcMarkerFlag();	//状態からフラグ算出
-		//ライン(アナログ)
-		void getSensorAnalogRaw(int sens_val[]);	//ラインセンサの状態をアナログで取得
+		void getSensorAnalogRaw(int sens_val[]);
 		void getSensorAnalog();
-		int calcPositionAnalog();	//状態からラインの位置を計算
-		void calcPositionAnalog2();	//状態からラインの位置を計算
-		void refleshCharactoristics();
-		void refleshAnalogSensorEnd();
+		int calcPositionAnalog();
+		void calcPositionAnalog2();	
+
+
+	void refleshCharactoristics();
+	void refleshAnalogSensorEnd();
 
 	//値を取得するとき用
 	int getLinePosition(DataFormat df);	//ライン位置を取得(デジタル)*
@@ -85,7 +84,6 @@ void Sensor::measure(){
 	getSensorDigital();
 	getSensorAnalog();
 
-	calcPositionDigital();
 	calcPositionAnalog2();
 	calcMarkerFlag();
 }
@@ -110,39 +108,10 @@ void Sensor::getSensorDigital(){
 	right_line_end = bitRead(marker,1);
 	left_line_end = bitRead(marker,2);
 	left_marker = bitRead(marker,3);
-
-	if(line_color == WHITE) line_status_digital = ~(PINC) & 0b011111;
-	else if(line_color == BLACK) line_status_digital = PINC & 0b011111;
 }
 
 
-void Sensor::calcPositionDigital(){
-	int pos = line_position_digital;
-	
-	online=true;
-	switch( line_status_digital ){
-		case 0b00001: pos = 20; break;
-		case 0b00011: pos = 12; break;
-		case 0b00111: pos = 10; break;
-		case 0b00010: pos = 10; break;
-		case 0b00110: pos = 5; break;
-		case 0b01110: pos = 0; break;
-		case 0b00100: pos = 0; break;
-		case 0b01100: pos = -5; break;
-		case 0b11100: pos = -10; break;
-		case 0b01000: pos = -10; break;
-		case 0b11000: pos = -12; break;
-		case 0b10000: pos = -20; break;
-		case 0b00000:
-		if (left_line_end ) pos = -30;
-		else if (right_line_end ) pos = 30;
-		else online=false;
-		break;
-		default: online=false;
-	}
 
-	line_position_digital = pos;
-}
 
 
 void Sensor::calcMarkerFlag(){
@@ -181,8 +150,8 @@ void Sensor::refleshCharactoristics(){
 	}
 }
 
+//重み付けによる位置計算
 const int sens_coefficient[5] = {1, 11, 21, 31, 41};
-
 int Sensor::calcPositionAnalog(){
 	int sens_sum = 0;
 	int sens_cal = 0;
@@ -214,5 +183,43 @@ void Sensor::calcPositionAnalog2(){
 
 	line_position_analog = line_pos;
 }
+
+
+
+
+
+// ================================================
+
+void Sensor::getLineDigital(){
+	if(line_color == WHITE) line_status_digital = ~(PINC) & 0b011111;
+	else if(line_color == BLACK) line_status_digital = PINC & 0b011111;
+
+	int pos = line_position_digital;
+	
+	online=true;
+	switch( line_status_digital ){
+		case 0b00001: pos = 20; break;
+		case 0b00011: pos = 12; break;
+		case 0b00111: pos = 10; break;
+		case 0b00010: pos = 10; break;
+		case 0b00110: pos = 5; break;
+		case 0b01110: pos = 0; break;
+		case 0b00100: pos = 0; break;
+		case 0b01100: pos = -5; break;
+		case 0b11100: pos = -10; break;
+		case 0b01000: pos = -10; break;
+		case 0b11000: pos = -12; break;
+		case 0b10000: pos = -20; break;
+		case 0b00000:
+		if (left_line_end ) pos = -30;
+		else if (right_line_end ) pos = 30;
+		else online=false;
+		break;
+		default: online=false;
+	}
+
+	line_position_digital = pos;
+}
+
 
 #endif

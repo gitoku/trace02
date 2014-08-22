@@ -87,7 +87,7 @@ void setup(){
 	delay(100);
 	noTone(BUZZER_PIN);
 	
-	//モーター(max duty = 40)
+	//モーター
 	motorR.attach(MOTOR_R_PWM_PIN, MOTOR_R_FREE_PIN);
 	motorL.attach(MOTOR_L_PWM_PIN, MOTOR_L_FREE_PIN);
 	motorR.setLimit(55);
@@ -97,7 +97,6 @@ void setup(){
 
 	//スイッチがクリックされるまで待つ
 	waitUntilClick();
-	delay(500);
 
 	//センサーのキャリブレーション
 	calibration();
@@ -105,7 +104,7 @@ void setup(){
 
 
 
-#define LINE_CENTER 0	//当たり前に思うかもしれないけど、アナログだと違うみたい
+#define LINE_CENTER 0
 #define SAFETY_STOP_TIMELIMIT 50	//[msec]
 
 void loop(){
@@ -149,7 +148,7 @@ void loop(){
 	// Serial.print(in);
 	// Serial.print("\t");
 	// Serial.println(out);	
-	
+
 	// analogSensorPrint();
 	// digitalSensorPrint();
 	// positionPrint(Sensor::line_position_analog);
